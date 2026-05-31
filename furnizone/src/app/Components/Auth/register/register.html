@@ -1,0 +1,252 @@
+<div class="min-h-screen bg-[#f5f0eb] flex flex-col pt-16">
+
+  <div class="flex-1 flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-md">
+
+      <!-- Card -->
+      <div class="bg-white rounded-2xl shadow-sm border border-[#e8ddd3] px-8 py-10">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <h1 class="text-2xl font-bold text-[#3d2314] mb-1">Create Account</h1>
+          <p class="text-sm text-[#8a7060]">Join FurniZone and discover beautiful furniture</p>
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate class="space-y-4">
+
+          <!-- Full Name -->
+          <div>
+            <label class="block text-sm font-medium text-[#3d2314] mb-1.5">Full Name</label>
+            <input
+              type="text"
+              formControlName="fullName"
+              placeholder="John Doe"
+              (blur)="markTouched('fullName')"
+              class="w-full px-4 py-2.5 rounded-lg border text-sm text-[#3d2314] placeholder-[#c0b0a0] transition focus:outline-none focus:ring-2 focus:ring-[#3d2314]/20"
+              [class.border-[#d6c9bb]]="!getFieldError('fullName')()"
+              [class.border-red-400]="getFieldError('fullName')()"
+            />
+            @if (getFieldError('fullName')()) {
+              <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                {{ getFieldError('fullName')() }}
+              </p>
+            }
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-medium text-[#3d2314] mb-1.5">Email Address</label>
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="you@example.com"
+              (blur)="markTouched('email')"
+              class="w-full px-4 py-2.5 rounded-lg border text-sm text-[#3d2314] placeholder-[#c0b0a0] transition focus:outline-none focus:ring-2 focus:ring-[#3d2314]/20"
+              [class.border-[#d6c9bb]]="!getFieldError('email')()"
+              [class.border-red-400]="getFieldError('email')()"
+            />
+            @if (getFieldError('email')()) {
+              <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                {{ getFieldError('email')() }}
+              </p>
+            }
+          </div>
+
+          <!-- Phone (Optional) -->
+          <div>
+            <label class="block text-sm font-medium text-[#3d2314] mb-1.5">
+              Phone Number
+              <span class="text-[#a09080] font-normal ml-1">(optional)</span>
+            </label>
+            <input
+              type="tel"
+              formControlName="phone"
+              placeholder="01012345678"
+              (blur)="markTouched('phone')"
+              class="w-full px-4 py-2.5 rounded-lg border text-sm text-[#3d2314] placeholder-[#c0b0a0] transition focus:outline-none focus:ring-2 focus:ring-[#3d2314]/20"
+              [class.border-[#d6c9bb]]="!getFieldError('phone')()"
+              [class.border-red-400]="getFieldError('phone')()"
+            />
+            @if (getFieldError('phone')()) {
+              <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                {{ getFieldError('phone')() }}
+              </p>
+            }
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label class="block text-sm font-medium text-[#3d2314] mb-1.5">Password</label>
+            <div class="relative">
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Min 8 chars, 1 uppercase, 1 number"
+                (blur)="markTouched('password')"
+                class="w-full px-4 py-2.5 pr-10 rounded-lg border text-sm text-[#3d2314] placeholder-[#c0b0a0] transition focus:outline-none focus:ring-2 focus:ring-[#3d2314]/20"
+                [class.border-[#d6c9bb]]="!getFieldError('password')()"
+                [class.border-red-400]="getFieldError('password')()"
+              />
+              <button type="button" (click)="togglePassword()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-[#b0a090] hover:text-[#3d2314] transition-colors" tabindex="-1">
+                @if (showPassword()) {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>
+                  </svg>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                }
+              </button>
+            </div>
+
+            <!-- Password Strength -->
+            @if (password.value) {
+              <div class="mt-2">
+                <div class="flex gap-1 mb-1">
+                  @for (i of [1,2,3,4]; track i) {
+                    <div class="h-1 flex-1 rounded-full transition-all duration-300"
+                      [class]="i <= passwordStrength() ? passwordStrengthColor() : 'bg-gray-200'">
+                    </div>
+                  }
+                </div>
+                <p class="text-xs text-[#8a7060]">
+                  Strength:
+                  <span class="font-semibold"
+                    [class.text-red-500]="passwordStrength() === 1"
+                    [class.text-yellow-500]="passwordStrength() === 2"
+                    [class.text-blue-500]="passwordStrength() === 3"
+                    [class.text-green-600]="passwordStrength() === 4"
+                  >{{ passwordStrengthLabel() }}</span>
+                </p>
+              </div>
+            }
+
+            @if (getFieldError('password')()) {
+              <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                {{ getFieldError('password')() }}
+              </p>
+            }
+          </div>
+
+          <!-- Confirm Password -->
+          <div>
+            <label class="block text-sm font-medium text-[#3d2314] mb-1.5">Confirm Password</label>
+            <div class="relative">
+              <input
+                [type]="showConfirmPassword() ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                placeholder="Re-enter your password"
+                (blur)="markTouched('confirmPassword')"
+                class="w-full px-4 py-2.5 pr-10 rounded-lg border text-sm text-[#3d2314] placeholder-[#c0b0a0] transition focus:outline-none focus:ring-2 focus:ring-[#3d2314]/20"
+                [class.border-[#d6c9bb]]="!getFieldError('confirmPassword')()"
+                [class.border-red-400]="getFieldError('confirmPassword')()"
+              />
+              <button type="button" (click)="toggleConfirmPassword()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-[#b0a090] hover:text-[#3d2314] transition-colors" tabindex="-1">
+                @if (showConfirmPassword()) {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>
+                  </svg>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                }
+              </button>
+            </div>
+            @if (getFieldError('confirmPassword')()) {
+              <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                {{ getFieldError('confirmPassword')() }}
+              </p>
+            }
+          </div>
+
+          <!-- Terms Agreement -->
+          <div class="flex items-start gap-2 pt-1">
+            <input
+              id="agreeTerms"
+              type="checkbox"
+              formControlName="agreeTerms"
+              (blur)="markTouched('agreeTerms')"
+              class="mt-0.5 w-4 h-4 rounded border-[#d6c9bb] accent-[#3d2314] cursor-pointer flex-shrink-0"
+            />
+            <label for="agreeTerms" class="text-sm text-[#5a4a3a] cursor-pointer leading-snug">
+              I agree to the
+              <a href="#" class="text-[#3d2314] font-semibold hover:underline">Terms of Service</a>
+              and
+              <a href="#" class="text-[#3d2314] font-semibold hover:underline">Privacy Policy</a>
+            </label>
+          </div>
+          @if (isTouched('agreeTerms') && agreeTerms.hasError('required')) {
+            <p class="-mt-2 text-xs text-red-500 flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              You must agree to the terms to continue
+            </p>
+          }
+
+          <!-- API Error -->
+          @if (registerError()) {
+            <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <p class="text-sm text-red-600">{{ registerError() }}</p>
+            </div>
+          }
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            [disabled]="isLoading()"
+            class="w-full py-3 bg-[#3d2314] text-white font-semibold text-sm rounded-lg hover:bg-[#5a3520] active:bg-[#2a1a0e] transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+          >
+            @if (isLoading()) {
+              <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+              </svg>
+              Creating account...
+            } @else {
+              Create Account
+            }
+          </button>
+
+        </form>
+
+        <!-- Login Link -->
+        <p class="mt-6 text-center text-sm text-[#8a7060]">
+          Already have an account?
+          <a routerLink="/login" class="text-[#3d2314] font-semibold hover:underline ml-1">Sign in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

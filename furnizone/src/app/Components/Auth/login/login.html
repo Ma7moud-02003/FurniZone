@@ -1,0 +1,146 @@
+<div class="min-h-screen bg-[#f5f0eb] flex flex-col pt-16">
+
+  <!-- Page Body -->
+  <div class="flex-1 flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-md">
+
+      <!-- Card -->
+      <div class="bg-white rounded-2xl shadow-sm border border-[#e8ddd3] px-8 py-10">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <h1 class="text-2xl font-bold text-[#3d2314] mb-1">Welcome Back</h1>
+          <p class="text-sm text-[#8a7060]">Sign in to your FurniZone account</p>
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="space-y-5">
+
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-medium text-[#3d2314] mb-1.5">
+              Email Address
+            </label>
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="you@example.com"
+              class="w-full px-4 py-2.5 rounded-lg border text-sm text-[#3d2314] placeholder-[#c0b0a0] transition focus:outline-none focus:ring-2 focus:ring-[#3d2314]/20"
+              [class.border-[#d6c9bb]]="!emailError"
+              [class.border-red-400]="emailError"
+              [class.focus:border-[#3d2314]]="!emailError"
+              [class.focus:border-red-400]="emailError"
+            />
+            @if (emailError) {
+              <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                {{ emailError }}
+              </p>
+            }
+          </div>
+
+          <!-- Password -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-sm font-medium text-[#3d2314]">Password</label>
+              <a href="#" class="text-xs text-[#3d2314] hover:underline font-medium">Forgot password?</a>
+            </div>
+            <div class="relative">
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Enter your password"
+                
+                class="w-full px-4 py-2.5 pr-10 rounded-lg border text-sm text-[#3d2314] placeholder-[#c0b0a0] transition focus:outline-none focus:ring-2 focus:ring-[#3d2314]/20"
+                [class.border-[#d6c9bb]]="!passwordError"
+                [class.border-red-400]="passwordError"
+              />
+              <button
+                type="button"
+                (click)="togglePassword()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-[#b0a090] hover:text-[#3d2314] transition-colors"
+                tabindex="-1"
+              >
+                @if (showPassword()) {
+                  <!-- Eye Off -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>
+                  </svg>
+                } @else {
+                  <!-- Eye -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                }
+              </button>
+            </div>
+            @if (passwordError) {
+              <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                {{ passwordError }}
+              </p>
+            }
+          </div>
+
+          <!-- Remember Me -->
+          <div class="flex items-center gap-2">
+            <input
+              id="rememberMe"
+              type="checkbox"
+              formControlName="rememberMe"
+              class="w-4 h-4 rounded border-[#d6c9bb] text-[#3d2314] accent-[#3d2314] cursor-pointer"
+            />
+            <label for="rememberMe" class="text-sm text-[#5a4a3a] cursor-pointer">Remember me</label>
+          </div>
+
+          <!-- API Error -->
+          @if (loginError()) {
+            <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <p class="text-sm text-red-600">{{ loginError() }} </p>
+            </div>
+          }
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            [disabled]="isLoading()"
+            class="w-full py-3 bg-[#3d2314] text-white font-semibold text-sm rounded-lg hover:bg-[#5a3520] active:bg-[#2a1a0e] transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            @if (isLoading()) {
+              <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+              </svg>
+              Signing in...
+            } @else {
+              Sign In
+            }
+          </button>
+
+        </form>
+
+        <!-- Register Link -->
+        <p class="mt-6 text-center text-sm text-[#8a7060]">
+          Don't have an account?
+          <a routerLink="/register" class="text-[#3d2314] font-semibold hover:underline ml-1">Sign up</a>
+        </p>
+      </div>
+
+      <!-- Demo Hint -->
+      <p class="mt-4 text-center text-xs text-[#a09080]">
+        <span class="font-semibold">Demo:</span> Use any email and password to login
+      </p>
+    </div>
+  </div>
+</div>
