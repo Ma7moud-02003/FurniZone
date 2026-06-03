@@ -16,7 +16,7 @@ export class Nav {
   wishlistCount = signal(5);
  
   navLinks = signal([
-    { label: 'Home', path: '/' },
+    { label: 'Home', path: '/home' },
     { label: 'Products', path: '/products' },
     { label: 'Categories', path: '/categories' },
   ]);
