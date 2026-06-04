@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-[#f5f0eb] flex flex-col pt-16">
+<div class="bg-[#f5f0eb] flex flex-col pt-10">
 
   <div class="flex-1 flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-md">
@@ -20,19 +20,19 @@
             <label class="block text-sm font-medium text-[#3d2314] mb-1.5">Full Name</label>
             <input
               type="text"
-              formControlName="fullName"
+              formControlName="userName"
               placeholder="John Doe"
-              (blur)="markTouched('fullName')"
+              (blur)="markTouched('userName')"
               class="w-full px-4 py-2.5 rounded-lg border text-sm text-[#3d2314] placeholder-[#c0b0a0] transition focus:outline-none focus:ring-2 focus:ring-[#3d2314]/20"
-              [class.border-[#d6c9bb]]="!getFieldError('fullName')()"
-              [class.border-red-400]="getFieldError('fullName')()"
+              [class.border-[#d6c9bb]]="!getFieldError('userName')()"
+              [class.border-red-400]="getFieldError('userName')()"
             />
-            @if (getFieldError('fullName')()) {
+            @if (getFieldError('userName')()) {
               <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                 </svg>
-                {{ getFieldError('fullName')() }}
+                {{ getFieldError('userName')() }}
               </p>
             }
           </div>
@@ -59,30 +59,7 @@
             }
           </div>
 
-          <!-- Phone (Optional) -->
-          <div>
-            <label class="block text-sm font-medium text-[#3d2314] mb-1.5">
-              Phone Number
-              <span class="text-[#a09080] font-normal ml-1">(optional)</span>
-            </label>
-            <input
-              type="tel"
-              formControlName="phone"
-              placeholder="01012345678"
-              (blur)="markTouched('phone')"
-              class="w-full px-4 py-2.5 rounded-lg border text-sm text-[#3d2314] placeholder-[#c0b0a0] transition focus:outline-none focus:ring-2 focus:ring-[#3d2314]/20"
-              [class.border-[#d6c9bb]]="!getFieldError('phone')()"
-              [class.border-red-400]="getFieldError('phone')()"
-            />
-            @if (getFieldError('phone')()) {
-              <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                {{ getFieldError('phone')() }}
-              </p>
-            }
-          </div>
+        
 
           <!-- Password -->
           <div>

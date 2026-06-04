@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { Auth } from '../../../Core/Services/auth';
+import { Subscription } from 'rxjs';
+import { LoginInterface } from '../../../Models/login.Model';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +22,8 @@ import { RouterLink } from '@angular/router';
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    rememberMe: [false],
+    rememberMe:['']
+    
   });
  
   get email() {
@@ -48,18 +52,31 @@ import { RouterLink } from '@angular/router';
     if (this.password.hasError('minlength')) return 'Password must be at least 6 characters';
     return '';
   }
- 
+
+  
+  private auth=inject(Auth);
+  private rout=inject(Router);
+  private subs=new Subscription();
   onSubmit() {
     // بدل السجنال، بنخلي أنجلر يعلم على الفورم كلها إنها اتلمست لو داس Submit
     this.loginForm.markAllAsTouched();
     this.loginError.set('');
- 
     if (this.loginForm.invalid) return;
- 
     this.isLoading.set(true);
+    this.subs.add(
+      this.auth.signIn(this.loginForm.value as LoginInterface).subscribe({
+        next:(res:any)=>{
+        console.log(res);
+        // alert('تم تسجيل دخولك بنجاح');
+        const token=res.data.token;
+          localStorage.setItem('token',token);
+        this.auth.isLogged.set(true);
+      this.rout.navigate(['/home'])
+        },error:()=>{
+          this.isLoading.set(false);
+        }
+      })
+    )
  
-    setTimeout(() => {
-      this.isLoading.set(false);
-    }, 1500);
   }
 }

@@ -8,7 +8,7 @@
     <div class="flex items-center justify-between h-16">
 
       <!-- Logo -->
-      <a routerLink="/" class="flex items-center gap-2 flex-shrink-0">
+      <a routerLink="/" class="flex items-center gap-2 shrink-0">
         <div class="w-9 h-9 bg-[#3d2314] rounded-lg flex items-center justify-center">
           <span class="text-white font-bold text-sm tracking-tight">FZ</span>
         </div>
@@ -77,10 +77,18 @@
         </button>
 
         <!-- Login Button -->
-        <a
+        @if(isLogged())
+        {
+        <a (click)="logOut()"
+          class="px-5 py-2 bg-red-500 text-white text-sm font-semibold rounded-lg hover:bg-[#5a3520] transition-colors duration-200"
+        >Logout</a>
+        }
+        @else{
+            <a
           routerLink="/login"
           class="px-5 py-2 bg-[#3d2314] text-white text-sm font-semibold rounded-lg hover:bg-[#5a3520] transition-colors duration-200"
-        >Login</a>
+        >Login</a>  
+        }
       </div>
 
       <!-- Mobile Menu Toggle -->

@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { Auth } from '../../../Core/Services/auth';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -15,7 +17,8 @@ RouterModule
 })
 export class Register {
   private fb = inject(FormBuilder);
-
+  private auth=inject(Auth);
+  private subs=new Subscription();
   // 1. الـ Signals الأساسية لحالة الصفحة والـ Password Visibility
   showPassword = signal(false);
   showConfirmPassword = signal(false);
@@ -27,9 +30,8 @@ export class Register {
 
   // 3. بناء الفورم مع الـ Validation والـ Password Match Custom Validator
   registerForm: FormGroup = this.fb.group({
-    fullName: ['', [Validators.required, Validators.minLength(3)]],
+    userName: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
-    phone: ['', [Validators.pattern(/^01[0125][0-9]{8}$/)]], // رقم مصري اختياري كمثال
     password: ['', [
       Validators.required,
       Validators.minLength(8),
@@ -42,7 +44,6 @@ export class Register {
   // 4. الـ Getters الأساسية للوصول للـ controls بسهولة داخل الـ TS والـ HTML
   get email() { return this.registerForm.get('email')!; }
   get password() { return this.registerForm.get('password')!; }
-  get confirmPassword() { return this.registerForm.get('confirmPassword')!; }
   get agreeTerms() { return this.registerForm.get('agreeTerms')!; }
 
   // 5. ميثود لتسجيل أن الحقل تم لمسه (عند الـ Blur في الـ HTML)
@@ -75,9 +76,7 @@ export class Register {
       if (control.hasError('pattern') && fieldName === 'password') {
         return 'Password must contain at least 1 uppercase letter and 1 number';
       }
-      if (control.hasError('pattern') && fieldName === 'phone') {
-        return 'Please enter a valid phone number';
-      }
+      
       if (control.hasError('passwordMismatch') && fieldName === 'confirmPassword') {
         return 'Passwords do not match';
       }
@@ -146,26 +145,30 @@ export class Register {
     return null;
   }
 
+  private rout=inject(Router);
   // 10. عند عمل Submit للفورم
   onSubmit(): void {
     this.registerError.set('');
-
-    // علم على كل الحقول إنها اتلمست عشان يظهر الأخطاء لو داس Submit علطول
+    // علم على كل الحقول إنها اتلمست عشان يظهر الأخطاء لوداس Submit علطول
     Object.keys(this.registerForm.controls).forEach(key => {
       this.markTouched(key);
     });
-
     if (this.registerForm.invalid) return;
-
     this.isLoading.set(true);
-
-    // محاكاة لـ API Call
-    setTimeout(() => {
-      this.isLoading.set(false);
-      console.log('Form Submitted Successfully!', this.registerForm.value);
-      
-      // مثال لعرض خطأ من الـ API لو السيرفر رفض التسجيل:
-      // this.registerError.set('This email is already registered.');
-    }, 1500);
+    this.subs.add(
+      this.auth.signUp(this.registerForm.value)
+      .subscribe({
+        next:(res:any)=>{
+          console.log(res);
+          const token=res.data.token;
+          localStorage.setItem('token',token);
+          this.auth.isLogged.set(true);
+          alert('تم تسجيل حسابك بنجاح')
+          this.rout.navigate(['/home'])
+        }
+      })
+    )
   }
+
+
 }
