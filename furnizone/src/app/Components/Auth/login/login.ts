@@ -73,6 +73,7 @@ import { LoginInterface } from '../../../Models/login.Model';
         this.auth.isLogged.set(true);
       this.rout.navigate(['/home'])
         },error:()=>{
+          
           this.isLoading.set(false);
         }
       })

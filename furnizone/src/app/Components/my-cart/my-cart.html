@@ -1,0 +1,210 @@
+<section class="min-h-screen bg-[#F4F0E8] px-4 py-10 sm:px-6 lg:px-10 mt-10">
+  <div class="mx-auto max-w-6xl">
+
+    <!-- ── Page header ─────────────────────────────────────── -->
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-3xl font-extrabold text-[#2A1910] sm:text-4xl">Shopping Cart</h1>
+
+      @if (!isEmpty() && !isLoading()) {
+        <button
+          type="button"
+          (click)="clearCart()"
+          class="text-sm font-semibold transition-colors"
+          [class]="clearConfirm()
+            ? 'text-[#B03A2A] underline underline-offset-2'
+            : 'text-[#C0392B] hover:text-[#922B21]'"
+        >
+          {{ clearConfirm() ? 'Tap again to confirm' : 'Clear Cart' }}
+        </button>
+      }
+    </div>
+
+    <!-- ── Loading skeleton ───────────────────────────────── -->
+    @if (isLoading()) {
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
+        <div class="flex flex-col gap-4">
+          @for (_ of [1, 2]; track $index) {
+            <div class="animate-pulse rounded-2xl border border-stone-200 bg-white p-5">
+              <div class="flex items-center gap-4">
+                <div class="h-24 w-24 shrink-0 rounded-xl bg-stone-200"></div>
+                <div class="flex flex-1 flex-col gap-3">
+                  <div class="h-4 w-1/2 rounded bg-stone-200"></div>
+                  <div class="h-4 w-1/4 rounded bg-stone-200"></div>
+                  <div class="h-9 w-36 rounded-lg bg-stone-200"></div>
+                </div>
+                <div class="h-6 w-20 rounded bg-stone-200"></div>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="h-72 animate-pulse rounded-2xl border border-stone-200 bg-white"></div>
+      </div>
+    }
+
+    <!-- ── Error state ────────────────────────────────────── -->
+    @if (!isLoading() && error()) {
+      <div class="flex flex-col items-center justify-center gap-4 rounded-2xl border border-red-100 bg-red-50 px-6 py-20 text-center">
+        <svg class="h-10 w-10 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 9v4m0 4h.01M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0Z"/>
+        </svg>
+        <div>
+          <p class="text-lg font-semibold text-stone-800">Couldn't load your cart</p>
+          <p class="mt-1 text-sm text-stone-500">{{ error() }}</p>
+        </div>
+        <button
+          type="button"
+          (click)="loadCart()"
+          class="rounded-xl bg-[#3B2417] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#2A1910]"
+        >
+          Try again
+        </button>
+      </div>
+    }
+
+    <!-- ── Empty state ────────────────────────────────────── -->
+    @if (!isLoading() && !error() && isEmpty()) {
+      <div class="flex flex-col items-center justify-center gap-4 rounded-2xl border border-stone-200 bg-white px-8 py-24 text-center">
+        <svg class="h-16 w-16 text-stone-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 4h2l2.4 10.2a2 2 0 0 0 2 1.55h7.4a2 2 0 0 0 1.96-1.6L20 8H6"/>
+          <circle cx="9" cy="19.5" r="1.4" fill="currentColor" stroke="none"/>
+          <circle cx="17" cy="19.5" r="1.4" fill="currentColor" stroke="none"/>
+        </svg>
+        <div>
+          <p class="text-xl font-bold text-stone-800">Your cart is empty</p>
+          <p class="mt-1 text-sm text-stone-500">Browse our collection and add items you love.</p>
+        </div>
+        <a
+          routerLink="/products"
+          class="mt-2 rounded-xl bg-[#3B2417] px-7 py-3 text-sm font-semibold text-white hover:bg-[#2A1910]"
+        >
+          Shop now
+        </a>
+      </div>
+    }
+
+    <!-- ── Main layout: items + summary ──────────────────── -->
+    @if (!isLoading() && !error() && !isEmpty()) {
+      <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_380px]">
+
+        <!-- Cart items column -->
+        <div class="flex flex-col gap-4">
+          @for (item of cartItems(); track item.id) {
+            <div class="group flex flex-col gap-4 rounded-2xl border border-stone-200 bg-white p-5 transition-shadow hover:shadow-md sm:flex-row sm:items-center">
+
+              <!-- Product image -->
+              <div class="h-24 w-24 shrink-0 self-start overflow-hidden rounded-xl bg-stone-100 sm:self-center">
+                <img
+                  [src]="item.productImageUrl"
+                  [alt]="item.productName"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+
+              <!-- Product info + stepper -->
+              <div class="flex flex-1 flex-col gap-2">
+                <p class="text-base font-bold text-[#2A1910]">{{ item.productName }}</p>
+                <p class="text-sm font-semibold text-stone-500">${{ fmt(item.productPrice) }}</p>
+
+                <!-- Qty stepper + delete -->
+                <div class="mt-1 flex items-center gap-3">
+                  <div class="inline-flex items-center overflow-hidden rounded-lg border border-stone-300">
+                    <button
+                      type="button"
+                      (click)="decrement(item.id)"
+                      aria-label="Decrease quantity"
+                      class="flex h-9 w-9 items-center justify-center text-stone-600 transition-colors hover:bg-stone-100 active:bg-stone-200"
+                    >
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                        <path d="M5 12h14"/>
+                      </svg>
+                    </button>
+                    <span class="flex h-9 w-10 items-center justify-center border-x border-stone-300 text-sm font-semibold text-stone-800">
+                      {{ item.quantity }}
+                    </span>
+                    <button
+                      type="button"
+                      (click)="increment(item.id,item.quantity)"
+                      aria-label="Increase quantity"
+                      class="flex h-9 w-9 items-center justify-center text-stone-600 transition-colors hover:bg-stone-100 active:bg-stone-200"
+                    >
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                        <path d="M12 5v14M5 12h14"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- Delete -->
+                  <button
+                    type="button"
+                    (click)="removeItem(item.id)"
+                    aria-label="Remove {{ item.productName }} from cart"
+                    class="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-[#C0392B] transition-colors hover:border-red-200 hover:bg-red-50"
+                  >
+                    <svg class="h-4.5 w-4.5 h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+                      <path d="M10 11v6M14 11v6"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Line total -->
+              <p class="self-start text-right text-lg font-extrabold text-[#2A1910] sm:self-center">
+                ${{ fmt(item.productPrice * item.quantity) }}
+              </p>
+            </div>
+          }
+        </div>
+
+        <!-- Order Summary panel -->
+        <div class="sticky top-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <h2 class="mb-5 text-xl font-extrabold text-[#2A1910]">Order Summary</h2>
+
+          <div class="flex flex-col gap-3 border-b border-stone-200 pb-5 text-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-stone-500">
+                Subtotal
+                <span class="ml-1 text-xs text-stone-400">({{ totalItemCount() }} {{ totalItemCount() === 1 ? 'item' : 'items' }})</span>
+              </span>
+              <span class="font-semibold text-stone-800">${{ fmt(subtotal()) }}</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-stone-500">Shipping</span>
+              <span class="font-semibold text-[#3F7D4D]">FREE</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-stone-500">Tax (8%)</span>
+              <span class="font-semibold text-stone-800">${{ fmt(tax()) }}</span>
+            </div>
+          </div>
+
+          <div class="mt-5 flex items-center justify-between">
+            <span class="text-base font-bold text-[#2A1910]">Total</span>
+            <span class="text-2xl font-extrabold text-[#2A1910]">${{ fmt(total()) }}</span>
+          </div>
+
+          <div class="mt-6 flex flex-col gap-3">
+            <button
+              type="button"
+              class="w-full rounded-xl bg-[#3B2417] py-3.5 text-sm font-bold text-white transition-colors hover:bg-[#2A1910] active:scale-[0.99]"
+            >
+              Proceed to Checkout
+            </button>
+            <a
+              routerLink="/products"
+              class="w-full rounded-xl border border-stone-300 py-3.5 text-center text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-50 active:bg-stone-100"
+            >
+              Continue Shopping
+            </a>
+          </div>
+        </div>
+
+      </div>
+    }
+
+  </div>
+</section>
