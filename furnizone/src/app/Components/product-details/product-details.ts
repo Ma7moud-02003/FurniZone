@@ -8,6 +8,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Cart } from '../../Core/Services/cart';
 import { Alerts } from '../../Core/Services/alerts';
+import { Reviews } from '../../Core/Services/reviews';
+import { WishlistService } from '../../Core/Services/wishlist';
 
 @Component({
   selector: 'app-product-details',
@@ -21,40 +23,47 @@ export class ProductDetails implements OnInit {
   // ----- Input -----
   readonly id = input<string>();
 
-  private readonly productsApi = inject(ProductDetailsService);
-  private readonly subs = new Subscription();
+    productsApi = inject(ProductDetailsService);
+   private subs = new Subscription();
 
   // ----- Core state -----
-  readonly product = signal<Product | null>(null);
-  readonly isLoading = signal<boolean>(true);
-  readonly error = signal<string | null>(null);
+   product = signal<Product | null>(null);
+   isLoading = signal<boolean>(true);
+   error = signal<string | null>(null);
 
   // ----- UI state -----
-  readonly quantity = signal<number>(1);
-  readonly isWishlisted = signal<boolean>(false);
-  readonly justAddedToCart = signal<boolean>(false);
+   quantity = signal<number>(1);
+   isWishlisted = signal<boolean>(false);
+   justAddedToCart = signal<boolean>(false);
 
   // ----- Derived state -----
   // بما أن الداتا تحتوي على صورة واحدة فقط كـ string، جعلنا الـ activeImage ترجع الـ imageUrl مباشرة
-  readonly activeImage = computed<string>(() => this.product()?.imageUrl ?? '');
+   activeImage = computed<string>(() => this.product()?.imageUrl ?? '');
 
+// جوه كلاس الـ Component:
+ private rev = inject(Reviews); // أو السيرفيس اللي فيها الدالة
+// المتغيرات اللي هنربط بيها الـ Form (باستخدام Signals عشان الشغل المودرن)
+ userRating = signal<number>(0);
+ userComment = signal<string>('');
+ isSubmittingReview = signal<boolean>(false);
+   
   /** true = filled star. Floors the rating, so 4.8 renders as 4 filled + 1 empty */
-  readonly starRow = computed<boolean[]>(() => {
+   starRow = computed<boolean[]>(() => {
     const filled = Math.floor(this.product()?.averageRating ?? 0); // تعديل لـ averageRating
     return Array.from({ length: 5 }, (_, i) => i < filled);
   });
 
-  readonly formattedPrice = computed<string>(() =>
+   formattedPrice = computed<string>(() =>
     (this.product()?.price ?? 0).toFixed(2)
   );
 
-  readonly formattedRating = computed<string>(() =>
+   formattedRating = computed<string>(() =>
     (this.product()?.averageRating ?? 0).toFixed(1) // تعديل لـ averageRating
   );
 
-  readonly canDecrement = computed<boolean>(() => this.quantity() > 1);
+   canDecrement = computed<boolean>(() => this.quantity() > 1);
 
-  readonly canIncrement = computed<boolean>(() => {
+   canIncrement = computed<boolean>(() => {
     const stock = this.product()?.stock; // تعديل لـ stock
     return stock == null ? true : this.quantity() < stock;
   });
@@ -115,7 +124,7 @@ export class ProductDetails implements OnInit {
         next: (res: any) => {
           console.log('related',res);
           const data = res.data;
-          this.relatesProducts.set(data.dataq);
+          this.relatesProducts.set(data.data);
           console.log(this.relatesProducts());
           
           this.isLoading.set(false);
@@ -149,23 +158,110 @@ export class ProductDetails implements OnInit {
     this.quantity.set(Math.min(Math.max(1, Math.trunc(raw)), max));
   }
 
-  toggleWishlist(): void {
-    this.isWishlisted.update((v) => !v);
-  }
+private readonly wishlistService = inject(WishlistService);
 
-  private cart=inject(Cart);
-  private alerts=inject(Alerts);
+// 1. استدع دالة الفحص هذه عند جلب تفاصيل المنتج بنجاح (مثلاً داخل الـ ngOnInit أو بعد الـ fetch)
+checkIfProductIsWishlisted(productId: string): void {
+  this.wishlistService.getMyFavourite().subscribe({
+    next: (favorites: any[]) => {
+      // إذا وجدنا نفس الـ id في قائمة المفضلة، نجعله true، وإلا false
+      const exists = favorites.some(item => item.id === productId);
+      this.isWishlisted.set(exists);
+    },
+    error: () => this.isWishlisted.set(false)
+  });
+}
+
+// 2. دالة الـ Toggle عند الضغط على زرار "Add to Wishlist" في ملف التفاصيل 🚀
+toggleWishlist(): void {
+  const product = this.product();
+  if (!product) return;
+
+  if (this.isWishlisted()) {
+    // لو هو موجود فعلاً، نضغط عليه عشان نحذفه
+    this.wishlistService.deleteOfWishList(product.id).subscribe({
+      next: () => {
+        this.isWishlisted.set(false);
+        this.alerts.showSuccess('Removed from wishlist');
+      }
+    });
+  } else {
+    // لو مش موجود، نضغط عليه عشان نضيفه
+    this.wishlistService.addToWishlist(product.id).subscribe({
+      next: () => {
+        this.isWishlisted.set(true);
+        this.alerts.showSuccess('Added to wishlist');
+      }
+    });
+  }
+}
+
+ cart = inject(Cart);
+   alerts = inject(Alerts);
+
   addToCart(): void {
     const product = this.product();
     if (!product) return;
-this.subs.add(
-  this.cart.bottelInCart(product.id,this.quantity()).subscribe({
-    next:()=>{
-this.alerts.showSuccess('Product has been added to the cart');
-this.justAddedToCart.set(true);
-   console.log('Add to cart', { productId: product.id, quantity: this.quantity() });
-    }
-  })
-)
+    this.subs.add(
+      this.cart.bottelInCart(product.id, this.quantity()).subscribe({
+        next: (res) => {
+          // تحديث السجنال: القيمة الحالية + الكمية الجديدة اللي اتمسكت من صفحة التفاصيل 🚀
+          const updatedLength = this.cart.cartItemsLength() + this.quantity();
+          this.cart.updateCartLength(updatedLength);
+
+          // كود الألرت والأنيميشن الحالي بتاعك زي ما هو
+          this.alerts.showSuccess('Product has been added to the cart');
+          this.justAddedToCart.set(true);
+          console.log('Add to cart success', { productId: product.id, quantity: this.quantity() });
+        },
+        error: (err) => {
+          console.error('Error adding to cart', err);
+        }
+      })
+    );
+  }
+
+
+
+// دالة إرسال التقييم
+submitReview(): void {
+  const product = this.product();
+  if (!product) return;
+
+  if (this.userRating() === 0) {
+    this.alerts.showWarning('Please select a star rating.');
+    return;
+  }
+
+  if (!this.userComment().trim()) {
+    this.alerts.showWarning('Please write a comment.');
+    return;
+  }
+
+  this.isSubmittingReview.set(true);
+
+  const reviewBody = {
+    productId: product.id,
+    rating: this.userRating(),
+    comment: this.userComment().trim()
+  };
+
+  this.subs.add(
+    this.rev.sendReviers(reviewBody).subscribe({
+      next: (res) => {
+        this.alerts.showSuccess('Thank you! Your review has been submitted.');
+        
+        // إعادة تصفير الفورم بعد النجاح
+        this.userRating.set(0);
+        this.userComment.set('');
+        this.isSubmittingReview.set(false);
+        this.fetchProductDetails(product.id); 
+      }
+    })
+  );
 }
+
+
+
+
 }

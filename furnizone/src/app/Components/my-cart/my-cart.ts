@@ -3,10 +3,12 @@ import { Cart } from '../../Core/Services/cart';
 import { Subscription } from 'rxjs';
 import { CartItem } from '../../Models/Cart';
 import { CommonModule } from '@angular/common';
+import { Alerts } from '../../Core/Services/alerts';
+import { Router, RouterModule } from '@angular/router';
 const TAX_RATE = 0.08; // 8 %
 @Component({
   selector: 'app-my-cart',
-  imports: [CommonModule],
+  imports: [CommonModule,RouterModule],
   templateUrl: './my-cart.html',
   styleUrl: './my-cart.css',
 })
@@ -83,7 +85,12 @@ private readonly cart = inject(Cart);
       )
     );
     const newQ=quantity+1;
-    TODO: this.subs.add(this.cart.editeCart(itemId, newQ).subscribe({
+
+   this.updateQu(itemId,newQ);
+  }
+
+  updateQu(itemId:string,quantity:number){
+     TODO: this.subs.add(this.cart.editeCart(itemId, quantity).subscribe({
       next:()=>{
         console.log('updated');
         
@@ -92,7 +99,7 @@ private readonly cart = inject(Cart);
   )
   }
 
-  decrement(itemId: string): void {
+  decrement(itemId: string,quantity:number): void {
     const item = this.cartItems().find((i) => i.id === itemId);
     if (!item) return;
     if (item.quantity <= 1) {
@@ -104,15 +111,24 @@ private readonly cart = inject(Cart);
         i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i
       )
     );
-    // TODO: this.cart.updateQuantity(itemId, newQty).subscribe()
+    const newQ=quantity-1;
+
+       this.updateQu(itemId,newQ);
+
   }
 
   // ── Remove / clear ────────────────────────────────────────────
   removeItem(itemId: string): void {
     this.cartItems.update((items) => items.filter((i) => i.id !== itemId));
-    // TODO: this.cart.removeItem(itemId).subscribe()
+    TODO:  this.subs.add(this.cart.deleteItem(itemId).subscribe({
+      next:()=>{
+        this.alerts.showSuccess('Removed');
+        this.cart.updateCartLength(-1);
+      }
+    }))
   }
 
+  private alerts=inject(Alerts);
   clearCart(): void {
     if (!this.clearConfirm()) {
       this.clearConfirm.set(true);
@@ -121,7 +137,13 @@ private readonly cart = inject(Cart);
     }
     this.cartItems.set([]);
     this.clearConfirm.set(false);
-    // TODO: this.cart.clearCart().subscribe()
+    TODO: this.subs.add(this.cart.clearCart().subscribe({
+      next:()=>{
+      this.alerts.showSuccess('Cleared Successfully');
+        this.cart.updateCartLength(0);
+
+      }
+    }))
   }
 
   // ── Formatting helpers ────────────────────────────────────────
@@ -131,4 +153,20 @@ private readonly cart = inject(Cart);
       maximumFractionDigits: 2,
     });
   }
+
+private router = inject(Router);
+
+goToCheckout() {
+  this.router.navigate(['/checkout'], {
+    state: {
+      items: this.cartItems(), // المصفوفة اللي فيها المنتجات الحالية من السلة عندك
+      subtotal: this.subtotal(),
+      shipping: 29.99, // أو حسب الحسبة عندك
+      tax: this.tax(),
+      total: this.total(),
+      totalItems:this.totalItemCount()
+    }
+  });
+
+}
 }

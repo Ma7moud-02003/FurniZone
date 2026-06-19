@@ -19,4 +19,6 @@ return this.http.get(`${api}/Products/${id}`);
   getAllProducts(){
    return this.http.get(`${api}/Products`);
   }
+
+  
 }

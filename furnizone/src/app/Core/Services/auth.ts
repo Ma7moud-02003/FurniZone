@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { api } from '../../../environments/environment';
 import { SignUpInterface } from '../../Models/signUp.Model';
 import { LoginInterface } from '../../Models/login.Model';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -32,10 +33,11 @@ return this.http.post(`${api}/Auth/signin`,{email,password});
     return localStorage.getItem('token');
   }
 
+  private router=inject(Router);
   logOut(){
     this.isLogged.set(false);
     localStorage.removeItem('token');
+this.router.navigate(['/login'])
 return this.http.post(`${api}/Auth/logout`,null);
-
   }
 }

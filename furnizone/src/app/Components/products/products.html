@@ -102,7 +102,7 @@
           } @else {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               @for (product of products(); track product.id) {
-                <div class="bg-white rounded-2xl overflow-hidden">
+                <div [routerLink]="['/pd_details',product.id]" class="bg-white rounded-2xl overflow-hidden">
 
                   <div class="relative">
                     <img
