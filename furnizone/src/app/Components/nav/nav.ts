@@ -35,7 +35,7 @@ export class Nav implements OnInit{
   navLinks = signal([
     { label: 'Home', path: '/home' },
     { label: 'Products', path: '/products' },
-    { label: 'Categories', path: '/categories' },
+    { label: 'Categories', path: '/catogs' },
   ]);
  
   @HostListener('window:scroll')

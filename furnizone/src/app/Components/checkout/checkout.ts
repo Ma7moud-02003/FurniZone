@@ -18,20 +18,20 @@ private router = inject(Router);
   private subs = new Subscription();
 
   // السجنالز بتاعتك زي ما هي
-  readonly fullName = signal<string>('');
-  readonly email = signal<string>('');
-  readonly phone = signal<string>('');
-  readonly streetAddress = signal<string>('');
-  readonly city = signal<string>('');
-  readonly postalCode = signal<string>('');
-  readonly isProcessing = signal<boolean>(false);
+   fullName = signal<string>('');
+   email = signal<string>('');
+   phone = signal<string>('');
+   streetAddress = signal<string>('');
+   city = signal<string>('');
+   postalCode = signal<string>('');
+   isProcessing = signal<boolean>(false);
 
-  readonly checkoutItems = signal<any[]>([]);
-  readonly subtotal = signal<number>(0);
-  readonly shipping = signal<number>(0);
-  readonly tax = signal<number>(0);
-  readonly total = signal<number>(0);
-  readonly totalItems = signal<number>(0);
+   checkoutItems = signal<any[]>([]);
+   subtotal = signal<number>(0);
+   shipping = signal<number>(0);
+   tax = signal<number>(0);
+   total = signal<number>(0);
+   totalItems = signal<number>(0);
 
   // 1. انقل جلب الـ state هنا جوه الـ constructor 🚀
   constructor() {
@@ -66,16 +66,7 @@ private router = inject(Router);
 
   // دالة زرار Place Order
   handlePlaceOrder(): void {
-    if (
-      !this.fullName().trim() || !this.email().trim() || !this.phone().trim() ||
-      !this.streetAddress().trim() || !this.city().trim() || !this.postalCode().trim()
-    ) {
-      this.alerts.showWarning('Please fill out all required shipping fields.');
-      return;
-    }
-
     this.isProcessing.set(true);
-
     // 3. إنشاء الطلب الأساسي
     this.subs.add(
       this.ordersService.postOrder().subscribe({
@@ -103,7 +94,9 @@ private router = inject(Router);
         next: () => {
           this.alerts.showSuccess('Order placed and payment successful! 🎉');
           this.isProcessing.set(false);
-          this.router.navigate(['/my-orders']); // توجهه لصفحة طلباته
+         setTimeout(() => {
+           this.router.navigate(['/my-orders']); 
+         }, 400);// توجهه لصفحة طلباته
         },
         error: () => {
           this.alerts.showError('Payment simulation failed.');
@@ -111,6 +104,18 @@ private router = inject(Router);
         }
       })
     );
+  }
+
+  placeOrder(){
+    this.subs.add(
+      this.ordersService.postOrder().subscribe({
+        next:()=>{
+          console.log('done');
+          this.alerts.showSuccess('Order has delivered successfully');
+          
+        }
+      })
+    )
   }
 
   ngOnDestroy(): void {

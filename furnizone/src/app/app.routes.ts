@@ -38,12 +38,22 @@ export const routes: Routes = [
         loadComponent: () => import('./Components/wishlist/wishlist').then(m => m.Wishlist)
     },
      {
-         path: 'myRevs', canActivate:[authGuard],
+         path: 'myRev', canActivate:[authGuard],
         loadComponent: () => import('./Components/my-rev/my-rev').then(m => m.MyRev)
     },
      {
          path: 'checkout', canActivate:[authGuard],
         loadComponent: () => import('./Components/checkout/checkout').then(m => m.Checkout)
     },
+     {
+         path: 'my-orders', canActivate:[authGuard],
+        loadComponent: () => import('./Components/my-orders/my-orders').then(m => m.MyOrders)
+    },
+   
+     {
+         path: 'catogs', canActivate:[authGuard],
+        loadComponent: () => import('./Components/catogs/catogs').then(m => m.Catogs)
+    },
+   
     
 ];

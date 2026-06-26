@@ -5,15 +5,16 @@ import { ProductDetailsService } from '../../Core/Services/product-details';
 import { Subscription } from 'rxjs';
 import { Product } from '../../Models/Product';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Cart } from '../../Core/Services/cart';
 import { Alerts } from '../../Core/Services/alerts';
 import { Reviews } from '../../Core/Services/reviews';
 import { WishlistService } from '../../Core/Services/wishlist';
+import { ProductCard } from '../Cards/product-card/product-card';
 
 @Component({
   selector: 'app-product-details',
-  imports: [CommonModule,RouterModule],
+  imports: [CommonModule,RouterModule,ProductCard],
   templateUrl: './product-details.html',
   styleUrl: './product-details.css',
 })
@@ -25,7 +26,7 @@ export class ProductDetails implements OnInit {
 
     productsApi = inject(ProductDetailsService);
    private subs = new Subscription();
-
+ 
   // ----- Core state -----
    product = signal<Product | null>(null);
    isLoading = signal<boolean>(true);
@@ -81,7 +82,9 @@ export class ProductDetails implements OnInit {
   }
 
     ngOnInit(): void {
-   
+   if (this.id()) {
+    this.checkIfProductIsWishlisted(this.id()||'')
+   }
     }
 
   ngOnDestroy(): void {
@@ -111,7 +114,7 @@ export class ProductDetails implements OnInit {
     );
   }
   
-    relatesProducts=signal<any[]>([]);
+    relatesProducts=signal<Product[]>([]);
     fetchRelatingProducts(): void {
     this.isLoading.set(true);
     this.error.set(null);
@@ -162,10 +165,15 @@ private readonly wishlistService = inject(WishlistService);
 
 // 1. استدع دالة الفحص هذه عند جلب تفاصيل المنتج بنجاح (مثلاً داخل الـ ngOnInit أو بعد الـ fetch)
 checkIfProductIsWishlisted(productId: string): void {
+  console.log(productId);
+  
   this.wishlistService.getMyFavourite().subscribe({
-    next: (favorites: any[]) => {
+    next: (favorites: any) => {
+      console.log(favorites);
+      
+      const items:any[]=favorites.data.items;
       // إذا وجدنا نفس الـ id في قائمة المفضلة، نجعله true، وإلا false
-      const exists = favorites.some(item => item.id === productId);
+      const exists = items.some(item => item.productId=== productId);
       this.isWishlisted.set(exists);
     },
     error: () => this.isWishlisted.set(false)
@@ -198,12 +206,13 @@ toggleWishlist(): void {
 
  cart = inject(Cart);
    alerts = inject(Alerts);
-
-  addToCart(): void {
+  
+   private router=inject(Router);
+  addToCart(id:string=this.id()||''): void {
     const product = this.product();
     if (!product) return;
     this.subs.add(
-      this.cart.bottelInCart(product.id, this.quantity()).subscribe({
+      this.cart.bottelInCart(id, this.quantity()).subscribe({
         next: (res) => {
           // تحديث السجنال: القيمة الحالية + الكمية الجديدة اللي اتمسكت من صفحة التفاصيل 🚀
           const updatedLength = this.cart.cartItemsLength() + this.quantity();
@@ -213,6 +222,9 @@ toggleWishlist(): void {
           this.alerts.showSuccess('Product has been added to the cart');
           this.justAddedToCart.set(true);
           console.log('Add to cart success', { productId: product.id, quantity: this.quantity() });
+       setTimeout(()=>{
+        this.router.navigate(['/cart'])
+       },600)
         },
         error: (err) => {
           console.error('Error adding to cart', err);

@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ProductsService } from '../../../Core/Services/products-service';
 import { Product } from '../../../Models/product.Model';
 import { RouterLink } from "@angular/router";
+import { ProductCard } from '../../Cards/product-card/product-card';
 
 @Component({
   selector: 'app-featured-products',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink,ProductCard],
   templateUrl: './featured-products.html',
 })
 export class FeaturedProducts implements OnInit {

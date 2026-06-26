@@ -17,6 +17,6 @@ return this.http.post(`${api}/Wishlist/items`,{productId});
     return this.http.get(`${api}/Wishlist`);
   }
 deleteOfWishList(id: string): Observable<any> {
-  return this.http.delete(`${api}/Wishlist/items/${id}`); // تم تعديلها لـ delete
+  return this.http.delete(`${api}/Wishlist/items/${id}`); 
 }
 }

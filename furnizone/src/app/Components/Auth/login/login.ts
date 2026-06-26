@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../../Core/Services/auth';
 import { Subscription } from 'rxjs';
 import { LoginInterface } from '../../../Models/login.Model';
+import { Alerts } from '../../../Core/Services/alerts';
 
 @Component({
   selector: 'app-login',
@@ -57,6 +58,7 @@ import { LoginInterface } from '../../../Models/login.Model';
   private auth=inject(Auth);
   private rout=inject(Router);
   private subs=new Subscription();
+  private alerts=inject(Alerts);
   onSubmit() {
     // بدل السجنال، بنخلي أنجلر يعلم على الفورم كلها إنها اتلمست لو داس Submit
     this.loginForm.markAllAsTouched();
@@ -67,7 +69,7 @@ import { LoginInterface } from '../../../Models/login.Model';
       this.auth.signIn(this.loginForm.value as LoginInterface).subscribe({
         next:(res:any)=>{
         console.log(res);
-        // alert('تم تسجيل دخولك بنجاح');
+        this.alerts.showSuccess('تم تسجيل دخولك بنجاح');
         const token=res.data.token;
           localStorage.setItem('token',token);
         this.auth.isLogged.set(true);

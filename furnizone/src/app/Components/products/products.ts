@@ -6,11 +6,12 @@ import { CategoriesService } from '../../Core/Services/categories-services';
 import { Product } from '../../Models/product.Model';
 import { Category } from '../../Models/category.model';
 import { RouterModule } from '@angular/router';
+import { ProductCard } from '../Cards/product-card/product-card';
 
 @Component({
   selector: 'app-products-list',
   standalone: true,
-  imports: [CommonModule, FormsModule,RouterModule],
+  imports: [CommonModule, FormsModule,RouterModule,ProductCard],
   templateUrl: './products.html',
 })
 export class Products implements OnInit {

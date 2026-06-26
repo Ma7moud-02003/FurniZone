@@ -1,0 +1,86 @@
+<div class="min-h-screen bg-stone-50 py-12 px-4 sm:px-6 lg:px-8 mt-15 text-left">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between space-x-3 mb-8 pb-5">
+      <div class="flex items-center gap-3">
+        <div class="p-2 flex items-center bg-amber-900/10 rounded-lg text-amber-900">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.007 5.25H3.75v.008h.008V12Zm0 5.25H3.75v.008h.008v-.008Z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-3xl m-0 font-bold text-amber-950">My Orders</h1>
+          <p class="text-sm text-stone-600 mt-1">Track and manage your furniture orders</p>
+        </div>
+      </div>
+    </div>
+
+    @if (myOrders().length === 0) {
+      <div class="text-center py-16 bg-white rounded-2xl border border-stone-200/60 shadow-sm p-8">
+        <div class="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4 text-stone-400">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-amber-950">No orders found</h3>
+        <p class="text-stone-500 mt-1 text-sm">You haven't placed any furniture orders yet.</p>
+      </div>
+    } @else {
+      <div class="space-y-6">
+        @for (order of myOrders(); track order.id) {
+          <div class="bg-white rounded-2xl border border-stone-200/80 shadow-sm overflow-hidden transition hover:shadow-md">
+            <div class="bg-stone-100/80 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+              <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-stone-600">
+                <div>
+                  <span class="font-medium text-stone-500">Order Date:</span>
+                  <span class="text-amber-950 font-semibold ml-1">{{ order.createdAt | date:'shortDate' }}</span>
+                </div>
+              </div>
+              <div>
+              @if (order.payment?.status === 1) {
+  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+    Paid Successfully
+  </span>
+} @else if (order.payment?.status === 0) {
+  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+    Processing
+  </span>
+} @else {
+  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">
+    Failed
+  </span>
+}
+              </div>
+            </div>
+
+            <div class="p-6 divide-y divide-stone-100">
+              @for (item of order.orderItems; track item.id) {
+                <div [routerLink]="['/order-details',orderId()]"  class="flex items-center py-4 first:pt-0 last:pb-0 hover:bg-gray-100 transition duration-100">
+                  <div class="h-20 w-20 flex-shrink-0 overflow-hidden mr-3.5 rounded-xl border border-stone-200 bg-stone-50 p-1">
+                    <img [src]="item.productImageUrl" [alt]="item.productName" class="h-full w-full object-cover object-center rounded-lg">
+                  </div>
+                  <div class="flex flex-1 flex-col ml-4">
+                    <div class="flex justify-between text-base font-medium text-amber-950">
+                      <h4 class="font-bold text-lg">{{ item.productName }}</h4>
+                      <p class="font-semibold text-amber-900">{{ item.subtotal | currency:'USD' }}</p>
+                    </div>
+                    <div class="flex items-center justify-between mt-2 text-sm text-stone-500">
+                      <p>Quantity: <span class="font-semibold text-stone-700">{{ item.quantity }}</span></p>
+                      <p>Price: <span class="font-semibold text-stone-700">{{ item.price | currency:'USD' }}</span></p>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="bg-stone-50/50 px-6 py-4 flex items-center justify-between">
+              <span class="text-base font-medium text-stone-600">Total Amount:</span>
+              <span class="text-xl font-bold text-amber-900">
+                {{ order.payment?.amount | currency:'USD' }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

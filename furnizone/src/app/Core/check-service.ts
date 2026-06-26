@@ -22,6 +22,6 @@ export class CheckService {
   }
   getSingleOrder(id:string){
     return this.http.get(`${api}/Orders/${id}`);
-
   }
+
 }
