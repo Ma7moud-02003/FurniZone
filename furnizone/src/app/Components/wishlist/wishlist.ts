@@ -29,6 +29,8 @@ loadFavorites(): void {
   this.wishlistService.getMyFavourite().subscribe({
     next: (res) => {
       const data=res.data.items;
+      console.log(res);
+      
       // التأكد أن الداتا تم تخزينها كمصفوفة دائماً لتجنب خطأ الـ iterator
       if (Array.isArray(data)) {
         
