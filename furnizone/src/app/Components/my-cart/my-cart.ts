@@ -16,20 +16,19 @@ export class MyCart implements OnInit , OnDestroy{
 private readonly cart = inject(Cart);
   private readonly subs = new Subscription();
 
-  // ── Core state ──────────────────────────────────────────────
+
   readonly cartId = signal<string | null>(null);
   readonly cartItems = signal<CartItem[]>([]);
   readonly isLoading = signal<boolean>(true);
   readonly error = signal<string | null>(null);
   readonly clearConfirm = signal<boolean>(false);
 
-  // ── Derived / computed ───────────────────────────────────────
+  
   readonly isEmpty = computed<boolean>(() => this.cartItems().length === 0);
 
   readonly subtotal = computed<number>(() =>
     this.cartItems().reduce(
-      (acc, item) => acc + item.productPrice * item.quantity,
-      0
+      (acc, item) => acc + item.productPrice * item.quantity, 0
     )
   );
 
@@ -45,7 +44,7 @@ private readonly cart = inject(Cart);
     this.cartItems().reduce((acc, item) => acc + item.quantity, 0)
   );
 
-  // ── Lifecycle ────────────────────────────────────────────────
+  
   ngOnInit(): void {
     this.loadCart();
   }
@@ -54,7 +53,7 @@ private readonly cart = inject(Cart);
     this.subs.unsubscribe();
   }
 
-  // ── Data fetching ────────────────────────────────────────────
+  
   loadCart(): void {
     this.isLoading.set(true);
     this.error.set(null);
@@ -75,7 +74,7 @@ private readonly cart = inject(Cart);
     );
   }
 
-  // ── Quantity controls ─────────────────────────────────────────
+  
   increment(itemId: string,quantity:number): void {
     this.cartItems.update((items) =>
       items.map((item) =>
@@ -117,7 +116,7 @@ private readonly cart = inject(Cart);
 
   }
 
-  // ── Remove / clear ────────────────────────────────────────────
+  
   removeItem(itemId: string): void {
     this.cartItems.update((items) => items.filter((i) => i.id !== itemId));
     TODO:  this.subs.add(this.cart.deleteItem(itemId).subscribe({
@@ -146,7 +145,7 @@ private readonly cart = inject(Cart);
     }))
   }
 
-  // ── Formatting helpers ────────────────────────────────────────
+  
   fmt(value: number): string {
     return value.toLocaleString('en-US', {
       minimumFractionDigits: 2,
@@ -159,9 +158,9 @@ private router = inject(Router);
 goToCheckout() {
   this.router.navigate(['/checkout'], {
     state: {
-      items: this.cartItems(), // المصفوفة اللي فيها المنتجات الحالية من السلة عندك
+      items: this.cartItems(), 
       subtotal: this.subtotal(),
-      shipping: 29.99, // أو حسب الحسبة عندك
+      shipping: 29.99,
       tax: this.tax(),
       total: this.total(),
       totalItems:this.totalItemCount()

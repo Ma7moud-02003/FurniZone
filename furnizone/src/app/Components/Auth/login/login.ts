@@ -39,7 +39,7 @@ import { Alerts } from '../../../Core/Services/alerts';
     this.showPassword.update(v => !v);
   }
 
-  // استخدم getter عادية للخطأ بتعتمد على حالة الـ control والـ touched بتاعة أنجلر
+  
   get emailError(): string {
     if (!this.email.touched && !this.email.dirty) return '';
     if (this.email.hasError('required')) return 'Email is required';
@@ -69,11 +69,19 @@ import { Alerts } from '../../../Core/Services/alerts';
       this.auth.signIn(this.loginForm.value as LoginInterface).subscribe({
         next:(res:any)=>{
         console.log(res);
-        this.alerts.showSuccess('تم تسجيل دخولك بنجاح');
+        this.alerts.showSuccess(`Logged Successfully Welcome ${res.data.userName}`);
         const token=res.data.token;
           localStorage.setItem('token',token);
         this.auth.isLogged.set(true);
-      this.rout.navigate(['/home'])
+        if(res.data.role==0){
+          localStorage.setItem('role','user');
+         this.rout.navigate(['/home'])
+        }else if(res.data.role==1){
+          localStorage.setItem('role','admin');
+         this.rout.navigate(['admin'])
+
+
+        }
         },error:()=>{
           
           this.isLoading.set(false);

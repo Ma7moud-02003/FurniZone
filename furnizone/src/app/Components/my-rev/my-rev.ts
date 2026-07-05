@@ -66,13 +66,13 @@ export class MyRev {// حقن السيرفيس الخاصة بك والـ Alerts
     };
 
     if (this.isEditing() && this.currentReviewId()) {
-      // نداء دالة التعديل من السيرفيس بتاعتك editeRev
+    
       this.subs.add(
         this.reviewService.editeRev(this.currentReviewId()!, reviewBody).subscribe({
           next: () => {
             this.alerts.showSuccess('Review updated successfully.');
             this.resetForm();
-            this.loadReviews(); // إعادة جلب الداتا المحدثة من الباك إند فوراً 🔄
+            this.loadReviews();
           },
           error: () => this.isSubmitting.set(false)
         })
@@ -80,7 +80,7 @@ export class MyRev {// حقن السيرفيس الخاصة بك والـ Alerts
     }
   }
 
-  // 3. عند الضغط على زرار Edit بجانب أي ريفيو لتجهيز الفورم فوق
+  
   onEditClick(review: any): void {
     this.isEditing.set(true);
     this.currentReviewId.set(review.id);
@@ -89,7 +89,6 @@ export class MyRev {// حقن السيرفيس الخاصة بك والـ Alerts
     
   }
 
-  // 4. حذف الريفيو باستخدام دالة deleteRev من السيرفيس بتاعتك
   onDeleteClick(reviewId: string): void {
     if (confirm('Are you sure you want to delete this review?')) {
       this.subs.add(
@@ -109,7 +108,6 @@ export class MyRev {// حقن السيرفيس الخاصة بك والـ Alerts
     }
   }
 
-  // تصفير الفورم وإلغاء حالة التعديل
   resetForm(): void {
     this.userRating.set(0);
     this.userComment.set('');
@@ -119,6 +117,6 @@ export class MyRev {// حقن السيرفيس الخاصة بك والـ Alerts
   }
 
   ngOnDestroy(): void {
-    this.subs.unsubscribe(); // إلغاء الاشتراكات لمنع الـ Memory Leak
+    this.subs.unsubscribe()
   }
 }

@@ -1,0 +1,323 @@
+<div class="bg-gray-50 p-6 ">
+
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Orders</h1>
+    <p class="text-sm text-gray-500 mt-1">Track and manage all customer orders.</p>
+  </div>
+
+  <!-- Filters Card -->
+  <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+
+      <!-- Status -->
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1.5">Status</label>
+        <select
+          [(ngModel)]="filters.status"
+          class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-700 focus:border-amber-700 transition-colors"
+        >
+          <option [ngValue]="null">All</option>
+          @for (option of statusOptions; track option.value) {
+            <option [ngValue]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- User Id -->
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1.5">User ID</label>
+        <input
+          type="text"
+          [(ngModel)]="filters.userId"
+          placeholder="User ID"
+          class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-700 focus:border-amber-700 transition-colors"
+        />
+      </div>
+
+      <!-- From Date -->
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1.5">From Date</label>
+        <input
+          type="date"
+          [(ngModel)]="filters.fromDate"
+          class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-700 focus:border-amber-700 transition-colors"
+        />
+      </div>
+
+      <!-- To Date -->
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1.5">To Date</label>
+        <input
+          type="date"
+          [(ngModel)]="filters.toDate"
+          class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-700 focus:border-amber-700 transition-colors"
+        />
+      </div>
+
+      <!-- Sort By -->
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1.5">Sort By</label>
+        <input
+          type="text"
+          [(ngModel)]="filters.sortBy"
+          placeholder="e.g. createdAt"
+          class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-700 focus:border-amber-700 transition-colors"
+        />
+      </div>
+
+      <!-- Sort Descending -->
+      <div class="flex items-end">
+        <label class="inline-flex items-center gap-2 mb-2 cursor-pointer">
+          <input
+            type="checkbox"
+            [(ngModel)]="filters.sortDescending"
+            class="h-4 w-4 rounded border-gray-300 text-amber-700 focus:ring-amber-700"
+          />
+          <span class="text-sm text-gray-600">Sort Descending</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Filter Actions -->
+    <div class="flex items-center gap-3 mt-5">
+      <button
+        type="button"
+        (click)="search()"
+        class="inline-flex items-center gap-2 bg-amber-700 hover:bg-amber-800 text-white font-medium px-4 py-2.5 rounded-xl shadow-lg shadow-amber-700/20 transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+        </svg>
+        Search
+      </button>
+      <button
+        type="button"
+        (click)="resetFilters()"
+        class="inline-flex items-center gap-2 border border-gray-300 text-gray-600 hover:bg-gray-100 font-medium px-4 py-2.5 rounded-xl transition-colors"
+      >
+        Reset Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+
+    <!-- Loading Skeleton -->
+    @if (loading()) {
+      <div class="p-6 space-y-4">
+        @for (item of [1, 2, 3, 4, 5]; track item) {
+          <div class="flex items-center gap-4 animate-pulse">
+            <div class="h-4 w-8 bg-gray-200 rounded"></div>
+            <div class="h-4 w-32 bg-gray-200 rounded"></div>
+            <div class="h-4 w-28 bg-gray-200 rounded"></div>
+            <div class="h-4 flex-1 bg-gray-200 rounded"></div>
+            <div class="h-4 w-24 bg-gray-200 rounded"></div>
+            <div class="h-6 w-20 bg-gray-200 rounded-full"></div>
+            <div class="h-8 w-28 bg-gray-200 rounded-lg"></div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Error State -->
+    @else if (error()) {
+      <div class="flex flex-col items-center justify-center py-16 px-6 text-center">
+        <div class="h-16 w-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900">Something went wrong</h3>
+        <p class="text-sm text-gray-500 mt-1 mb-4">We couldn't load your orders. Please try again.</p>
+        <button
+          type="button"
+          (click)="retryLoad()"
+          class="inline-flex items-center gap-2 border border-amber-700 text-amber-700 hover:bg-amber-50 font-medium px-4 py-2 rounded-xl transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    }
+
+    <!-- Empty State -->
+    @else if (!hasOrders()) {
+      <div class="flex flex-col items-center justify-center py-16 px-6 text-center">
+        <div class="h-20 w-20 rounded-full bg-amber-50 flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-amber-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900">No Orders Found</h3>
+        <p class="text-sm text-gray-500 mt-1">Try adjusting your filters or check back later.</p>
+      </div>
+    }
+
+    <!-- Table -->
+    @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-gray-100 bg-gray-50">
+              <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 w-16">#</th>
+              <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Order ID</th>
+              <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Items</th>
+              <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Total Price</th>
+              <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Created Date</th>
+              <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
+              <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            @for (order of orders(); track order.id; let i = $index) {
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  {{ (pageNumber() - 1) * pageSize() + i + 1 }}
+                </td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ order.id }}</td>
+                <td class="px-6 py-4">
+                  <div class="flex flex-col gap-2">
+                    @for (item of order.orderItems; track item.id) {
+                      <div class="flex items-center gap-2.5">
+                        <img
+                          [src]="item.productImageUrl"
+                          [alt]="item.productName"
+                          class="h-9 w-9 rounded-lg object-cover border border-gray-100 shrink-0"
+                        />
+                        <div class="leading-tight">
+                          <p class="text-sm font-medium text-gray-800">{{ item.productName }}</p>
+                          <p class="text-xs text-gray-400">Qty {{ item.quantity }} &middot; {{ item.price | currency }}</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ order.totalPrice | currency }}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ formatDate(order.createdAt) }}</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClass(order.status)">
+                    {{ getStatusLabel(order.status) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <button
+                    type="button"
+                    (click)="openStatusModal(order)"
+                    class="inline-flex items-center gap-1.5 border border-amber-700 text-amber-700 hover:bg-amber-700 hover:text-white font-medium text-sm px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                    Update Status
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-100">
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+          <span>Rows per page</span>
+          <select
+            [ngModel]="pageSize()"
+            (ngModelChange)="onPageSizeChange($event)"
+            class="rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-700 focus:border-amber-700"
+          >
+            @for (size of pageSizeOptions; track size) {
+              <option [ngValue]="size">{{ size }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            (click)="previousPage()"
+            [disabled]="pageNumber() === 1"
+            class="px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 border border-gray-300 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Previous
+          </button>
+
+          @for (page of pages(); track page) {
+            <button
+              type="button"
+              (click)="goToPage(page)"
+              class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+              [class.bg-amber-700]="page === pageNumber()"
+              [class.text-white]="page === pageNumber()"
+              [class.text-gray-600]="page !== pageNumber()"
+              [class.hover:bg-gray-100]="page !== pageNumber()"
+            >
+              {{ page }}
+            </button>
+          }
+
+          <button
+            type="button"
+            (click)="nextPage()"
+            [disabled]="pageNumber() === totalPages()"
+            class="px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 border border-gray-300 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal: Update Order Status -->
+@if (isStatusModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50" (click)="closeStatusModal()"></div>
+
+    <!-- Modal Content -->
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-md p-6 z-10">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">Update Order Status</h2>
+      <p class="text-sm text-gray-500 mb-6">
+        Order <span class="font-medium text-gray-700">{{ selectedOrder()?.id }}</span>
+      </p>
+
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+      <select
+        [ngModel]="selectedStatus()"
+        (ngModelChange)="selectedStatus.set($event)"
+        class="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-700 focus:border-amber-700 transition-colors"
+      >
+        @for (option of statusOptions; track option.value) {
+          <option [ngValue]="option.value">{{ option.label }}</option>
+        }
+      </select>
+
+      <div class="flex items-center justify-end gap-3 mt-6">
+        <button
+          type="button"
+          (click)="closeStatusModal()"
+          class="px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          [disabled]="updating()"
+          (click)="saveStatus()"
+          class="inline-flex items-center gap-2 bg-amber-700 hover:bg-amber-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium px-4 py-2.5 rounded-xl shadow-lg shadow-amber-700/20 transition-colors"
+        >
+          @if (updating()) {
+            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+          }
+          {{ updating() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -19,29 +19,29 @@ export class Register {
   private fb = inject(FormBuilder);
   private auth=inject(Auth);
   private subs=new Subscription();
-  // 1. الـ Signals الأساسية لحالة الصفحة والـ Password Visibility
+
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   isLoading = signal(false);
   registerError = signal('');
 
-  // 2. تتبع الـ Fields اللي حصلها Blur (عشان الـ HTML مستخدم ميثود (blur)="markTouched(...)")
+
   private touchedFields = signal<{ [key: string]: boolean }>({});
 
-  // 3. بناء الفورم مع الـ Validation والـ Password Match Custom Validator
+
   registerForm: FormGroup = this.fb.group({
     userName: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [
       Validators.required,
       Validators.minLength(8),
-      Validators.pattern(/(?=.*[A-Z])(?=.*[0-9])/) // شرط حرف كابيتال ورقم واحد على الأقل
+      Validators.pattern(/(?=.*[A-Z])(?=.*[0-9])/)
     ]],
     confirmPassword: ['', [Validators.required]],
     agreeTerms: [false, [Validators.requiredTrue]]
   }, { validators: this.passwordMatchValidator });
 
-  // 4. الـ Getters الأساسية للوصول للـ controls بسهولة داخل الـ TS والـ HTML
+
   get email() { return this.registerForm.get('email')!; }
   get password() { return this.registerForm.get('password')!; }
   get agreeTerms() { return this.registerForm.get('agreeTerms')!; }
@@ -53,15 +53,14 @@ export class Register {
     this.registerForm.get(fieldName)?.markAsTouched();
   }
 
-  // ميثود للتشيك هل الحقل اتلمس ولا لأ (مستخدمة في تشيك الشروط بالـ HTML)
+  
   isTouched(fieldName: string): boolean {
     return !!this.touchedFields()[fieldName] || !!this.registerForm.get(fieldName)?.touched;
   }
 
-  // 6. الميثود السحرية اللي مستخدمة في الـ HTML للتشيك ع الأخطاء ديناميكياً وترجع Signal
   getFieldError(fieldName: string) {
     return computed(() => {
-      // الـ computed هيعيد الحساب تلقائياً لما الـ Form value تتغير أو الـ field يتلمس
+    
       this.touchedFields(); 
       const control = this.registerForm.get(fieldName);
       
@@ -85,32 +84,30 @@ export class Register {
     });
   }
 
-  // 7. حساب قوة الباسورد (Password Strength) بناءً ع الشروط
+  
   passwordStrength = computed(() => {
-    // استخدمت الـ valueChanges كـ سجنال عبر تحويل بسيط، أو مباشرة قراءة القيمة من الفورم داخل الـ computed
-    // عشان الـ computed يلقط التغيير مع كل حرف يكتبه المستخدم:
     const pass = this.registerForm.value.password || '';
     if (!pass) return 0;
 
     let strength = 0;
-    if (pass.length >= 8) strength++; // شرط الطول
-    if (/[A-Z]/.test(pass)) strength++; // شرط حرف كابيتال
-    if (/[0-9]/.test(pass)) strength++; // شرط رقم
-    if (/[^A-Za-z0-9]/.test(pass)) strength++; // شرط رمز خاص
+    if (pass.length >= 8) strength++; 
+    if (/[A-Z]/.test(pass)) strength++; 
+    if (/[0-9]/.test(pass)) strength++; 
+    if (/[^A-Za-z0-9]/.test(pass)) strength++; 
 
-    return strength === 0 ? 1 : strength; // الحد الأدنى 1 لو بدأ يكتب
+    return strength === 0 ? 1 : strength; 
   });
 
-  // تحديد كلاس اللون للـ bars بتاعة القوة بناءً ع الدرجة
+
   passwordStrengthColor = computed(() => {
     const strength = this.passwordStrength();
     if (strength === 1) return 'bg-red-500';
     if (strength === 2) return 'bg-yellow-500';
     if (strength === 3) return 'bg-blue-500';
-    return 'bg-green-600'; // لو 4 (قوي جداً)
+    return 'bg-green-600'; 
   });
 
-  // تحديد الكلمة (Label) اللي هتظهر في الـ HTML
+
   passwordStrengthLabel = computed(() => {
     const strength = this.passwordStrength();
     if (strength === 1) return 'Weak';
@@ -119,7 +116,7 @@ export class Register {
     return 'Strong';
   });
 
-  // 8. الـ Toggle لظهور وإخفاء الباسورد
+  
   togglePassword(): void {
     this.showPassword.update(v => !v);
   }
@@ -146,10 +143,9 @@ export class Register {
   }
 
   private rout=inject(Router);
-  // 10. عند عمل Submit للفورم
+  
   onSubmit(): void {
     this.registerError.set('');
-    // علم على كل الحقول إنها اتلمست عشان يظهر الأخطاء لوداس Submit علطول
     Object.keys(this.registerForm.controls).forEach(key => {
       this.markTouched(key);
     });

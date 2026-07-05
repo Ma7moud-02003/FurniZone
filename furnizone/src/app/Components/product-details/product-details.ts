@@ -21,36 +21,34 @@ import { ProductCard } from '../Cards/product-card/product-card';
 export class ProductDetails implements OnInit {
 
 
-  // ----- Input -----
+
   readonly id = input<string>();
 
     productsApi = inject(ProductDetailsService);
    private subs = new Subscription();
  
-  // ----- Core state -----
+
    product = signal<Product | null>(null);
    isLoading = signal<boolean>(true);
    error = signal<string | null>(null);
 
-  // ----- UI state -----
    quantity = signal<number>(1);
    isWishlisted = signal<boolean>(false);
    justAddedToCart = signal<boolean>(false);
 
-  // ----- Derived state -----
-  // بما أن الداتا تحتوي على صورة واحدة فقط كـ string، جعلنا الـ activeImage ترجع الـ imageUrl مباشرة
+  
    activeImage = computed<string>(() => this.product()?.imageUrl ?? '');
 
 // جوه كلاس الـ Component:
  private rev = inject(Reviews); // أو السيرفيس اللي فيها الدالة
-// المتغيرات اللي هنربط بيها الـ Form (باستخدام Signals عشان الشغل المودرن)
+
  userRating = signal<number>(0);
  userComment = signal<string>('');
  isSubmittingReview = signal<boolean>(false);
    
-  /** true = filled star. Floors the rating, so 4.8 renders as 4 filled + 1 empty */
+  
    starRow = computed<boolean[]>(() => {
-    const filled = Math.floor(this.product()?.averageRating ?? 0); // تعديل لـ averageRating
+    const filled = Math.floor(this.product()?.averageRating ?? 0);
     return Array.from({ length: 5 }, (_, i) => i < filled);
   });
 
@@ -59,7 +57,7 @@ export class ProductDetails implements OnInit {
   );
 
    formattedRating = computed<string>(() =>
-    (this.product()?.averageRating ?? 0).toFixed(1) // تعديل لـ averageRating
+    (this.product()?.averageRating ?? 0).toFixed(1)
   );
 
    canDecrement = computed<boolean>(() => this.quantity() > 1);
@@ -163,7 +161,7 @@ export class ProductDetails implements OnInit {
 
 private readonly wishlistService = inject(WishlistService);
 
-// 1. استدع دالة الفحص هذه عند جلب تفاصيل المنتج بنجاح (مثلاً داخل الـ ngOnInit أو بعد الـ fetch)
+
 checkIfProductIsWishlisted(productId: string): void {
   console.log(productId);
   
@@ -180,7 +178,7 @@ checkIfProductIsWishlisted(productId: string): void {
   });
 }
 
-// 2. دالة الـ Toggle عند الضغط على زرار "Add to Wishlist" في ملف التفاصيل 🚀
+
 toggleWishlist(): void {
   const product = this.product();
   if (!product) return;
@@ -235,7 +233,6 @@ toggleWishlist(): void {
 
 
 
-// دالة إرسال التقييم
 submitReview(): void {
   const product = this.product();
   if (!product) return;
@@ -263,7 +260,7 @@ submitReview(): void {
       next: (res) => {
         this.alerts.showSuccess('Thank you! Your review has been submitted.');
         
-        // إعادة تصفير الفورم بعد النجاح
+        
         this.userRating.set(0);
         this.userComment.set('');
         this.isSubmittingReview.set(false);

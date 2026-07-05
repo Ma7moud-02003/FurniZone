@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './Guards/auth-guard-guard';
+import { AdminLayout } from './Admin/admin-layout/admin-layout';
+import { adminGuard } from './Admin/Guards/admin.guard';
 
 export const routes: Routes = [
 
@@ -54,6 +56,29 @@ export const routes: Routes = [
          path: 'catogs', canActivate:[authGuard],
         loadComponent: () => import('./Components/catogs/catogs').then(m => m.Catogs)
     },
-   
+   // admin
+  {  
+    path: 'admin',
+    component:AdminLayout,
+    canActivate:[adminGuard],
+    children: [
+      { path: '', redirectTo: 'categories', pathMatch: 'full' },
+ 
+      {
+        path: 'categories',
+        loadComponent: () =>
+          import('./Admin/catogs/catogs').then((m) => m.Catogs),
+        
+      },
+        {
+        path: 'orders',
+        loadComponent: () =>
+          import('./Admin/orders/orders').then((m) => m.Orders),
+        
+      },
+ 
     
-];
+    ],
+  },
+    
+]

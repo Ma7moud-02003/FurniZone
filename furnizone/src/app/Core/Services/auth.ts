@@ -37,6 +37,8 @@ return this.http.post(`${api}/Auth/signin`,{email,password});
   logOut(){
     this.isLogged.set(false);
     localStorage.removeItem('token');
+    localStorage.removeItem('role');
+
 this.router.navigate(['/login'])
 return this.http.post(`${api}/Auth/logout`,null);
   }
