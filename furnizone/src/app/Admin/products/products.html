@@ -1,0 +1,179 @@
+<div class="p-8 bg-white min-h-screen">
+
+  <!-- Header -->
+  <div class="flex items-start justify-between mb-8">
+    <div>
+      <h1 class="font-bold text-[#2B1810] text-2xl mb-1">Products</h1>
+      <p class="text-gray-400 text-sm">Manage your products from one place.</p>
+    </div>
+    <button (click)="openAddModal()"
+      class="inline-flex items-center gap-2 bg-[#B94A0A] text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-[#a03d08] transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+      </svg>
+      Add Product
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center py-20">
+      <div class="w-8 h-8 border-4 border-[#B94A0A] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  }
+
+  @if (error()) {
+    <p class="text-center text-red-500 py-10">{{ error() }}</p>
+  }
+
+  @if (!isLoading() && !error()) {
+    <div class="rounded-xl overflow-hidden border border-gray-100">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-100">
+            <th class="text-left text-xs text-gray-400 font-semibold tracking-wider px-6 py-4">#</th>
+            <th class="text-left text-xs text-gray-400 font-semibold tracking-wider px-6 py-4">IMAGE</th>
+            <th class="text-left text-xs text-gray-400 font-semibold tracking-wider px-6 py-4">PRODUCT NAME</th>
+            <th class="text-left text-xs text-gray-400 font-semibold tracking-wider px-6 py-4">PRICE</th>
+            <th class="text-left text-xs text-gray-400 font-semibold tracking-wider px-6 py-4">STOCK</th>
+            <th class="text-right text-xs text-gray-400 font-semibold tracking-wider px-6 py-4">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products(); track product.id; let i = $index) {
+            <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 text-gray-400">{{ i + 1 }}</td>
+              <td class="px-6 py-4">
+                <img [src]="product.imageUrl" [alt]="product.name" class="w-12 h-12 object-cover rounded-lg" />
+              </td>
+              <td class="px-6 py-4">
+                <p class="font-semibold text-[#2B1810]">{{ product.name }}</p>
+                <p class="text-gray-400 text-xs mt-0.5 line-clamp-1">{{ product.description }}</p>
+              </td>
+              <td class="px-6 py-4 font-semibold text-[#2B1810]">${{ product.price }}</td>
+              <td class="px-6 py-4 text-gray-500">{{ product.stock }}</td>
+              <td class="px-6 py-4">
+                <div class="flex items-center justify-end gap-2">
+                  <button (click)="openEditModal(product)"
+                   class="inline-flex items-center gap-1.5 border border-amber-700 text-amber-700 hover:bg-amber-700 hover:text-white font-medium text-sm px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                      </svg>
+                       Edit
+                  </button>
+                  <button (click)="confirmDelete(product.id)"
+                     class="inline-flex items-center gap-1.5 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-medium text-sm px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                      </svg>
+                      Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>
+
+<!-- Add/Edit Modal -->
+@if (showModal()) {
+  <div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
+
+      <h2 class="font-bold text-[#2B1810] text-lg mb-5">
+        {{ isEditing() ? 'Edit Product' : 'Add Product' }}
+      </h2>
+
+      <form [formGroup]="productForm" (ngSubmit)="submitForm()" class="flex flex-col gap-4">
+
+        <div>
+          <label class="text-sm font-medium text-[#2B1810] mb-1 block">Name</label>
+          <input type="text" formControlName="name"
+            class="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:border-[#B94A0A]"
+            [class.border-red-400]="productForm.get('name')?.invalid && productForm.get('name')?.touched"
+            [class.border-gray-200]="!(productForm.get('name')?.invalid && productForm.get('name')?.touched)" />
+        </div>
+
+        <div>
+          <label class="text-sm font-medium text-[#2B1810] mb-1 block">Description</label>
+          <textarea formControlName="description" rows="3"
+            class="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:border-[#B94A0A] resize-none"
+            [class.border-red-400]="productForm.get('description')?.invalid && productForm.get('description')?.touched"
+            [class.border-gray-200]="!(productForm.get('description')?.invalid && productForm.get('description')?.touched)"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm font-medium text-[#2B1810] mb-1 block">Price</label>
+            <input type="number" formControlName="price"
+              (focus)="productForm.get('price')?.setValue(null)"
+              class="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-[#B94A0A]" />
+          </div>
+          <div>
+            <label class="text-sm font-medium text-[#2B1810] mb-1 block">Stock</label>
+            <input type="number" formControlName="stock"
+              (focus)="productForm.get('stock')?.setValue(null)"
+              class="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-[#B94A0A]" />
+          </div>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium text-[#2B1810] mb-1 block">Category ID</label>
+          <input type="text" formControlName="categoryId"
+            placeholder="e.g. 3f886654-e333-400d-9d59-4f3a448e1116"
+            class="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-[#B94A0A]" />
+        </div>
+
+        <div>
+          <label class="text-sm font-medium text-[#2B1810] mb-1 block">Image URL</label>
+          <input type="text" formControlName="imageUrl"
+            placeholder="https://example.com/image.jpg"
+            class="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-[#B94A0A]" />
+        </div>
+
+        <div class="flex items-center gap-3 mt-2">
+          <button type="submit"
+            [disabled]="productForm.invalid || isSubmitting()"
+            class="flex-1 bg-[#B94A0A] text-white text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 disabled:opacity-60 transition-opacity">
+            {{ isSubmitting() ? 'Saving...' : (isEditing() ? 'Save Changes' : 'Add Product') }}
+          </button>
+          <button type="button" (click)="closeModal()"
+            class="flex-1 border border-gray-200 text-gray-500 text-sm font-semibold py-2.5 rounded-lg hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Delete Confirm Modal -->
+@if (showDeleteConfirm()) {
+  <div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl text-center">
+      <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.72-1.36 3.486 0l6.28 11.18c.75 1.334-.213 2.98-1.742 2.98H3.72c-1.53 0-2.492-1.646-1.743-2.98l6.28-11.18zM11 14a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V7a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <h3 class="font-bold text-[#2B1810] text-lg mb-2">Delete Product?</h3>
+      <p class="text-gray-400 text-sm mb-6">This action cannot be undone.</p>
+      <div class="flex gap-3">
+        <button (click)="deleteProduct()"
+          class="flex-1 bg-red-500 text-white text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity">
+          Delete
+        </button>
+        <button (click)="cancelDelete()"
+          class="flex-1 border border-gray-200 text-gray-500 text-sm font-semibold py-2.5 rounded-lg hover:bg-gray-50 transition-colors">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+}

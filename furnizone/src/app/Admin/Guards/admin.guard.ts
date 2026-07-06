@@ -16,7 +16,6 @@ export const adminGuard: CanActivateFn = (route, state) => {
   if (token&&role==UserRole.ADMIN) {
 return true;
   } else {
-    // 3. التوكن مش موجود، ارمي تنبيه ورجعه لصفحة اللوجن 🔒
     alerts.showWarning('ACcess Denied Use an admin account');
     auth.logOut();
     return false;
