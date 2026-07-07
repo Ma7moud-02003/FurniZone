@@ -1,9 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { OrderService } from '../Services/order-service';
 import { Alerts } from '../../Core/Services/alerts';
 import { Order, OrderFilters, OrderStatus } from '../Models/order.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CatService } from '../Services/cat-service';
+import { Category } from '../../Models/category.model';
+import { Subscription } from 'rxjs';
 
 interface StatusOption {
   label: string;
@@ -15,7 +18,7 @@ interface StatusOption {
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
-export class Orders {
+export class Orders implements OnInit,OnDestroy{
   
   private readonly ordersService = inject(OrderService);
   private readonly alertService = inject(Alerts);
@@ -56,6 +59,7 @@ export class Orders {
  
   ngOnInit(): void {
     this.loadOrders();
+
   }
  
   private getDefaultFilters(): OrderFilters {
@@ -70,7 +74,9 @@ export class Orders {
       pageSize: 10,
     };
   }
- 
+
+  private subs=new Subscription()
+
   // ----- Data loading -----
   loadOrders(): void {
     this.loading.set(true);
@@ -82,7 +88,7 @@ export class Orders {
       pageSize: this.pageSize(),
     };
  
-    this.ordersService.getOrders(requestFilters).subscribe({
+    this.subs.add(this.ordersService.getOrders(requestFilters).subscribe({
       next: (result:any) => {
         console.log(result);
         const data=result.data.data;
@@ -92,7 +98,7 @@ export class Orders {
         this.loading.set(false);
       },
      
-    });
+    }));
   }
  
   retryLoad(): void {
@@ -156,7 +162,7 @@ export class Orders {
  
     this.updating.set(true);
  
-    this.ordersService.updateOrderStatus(order.id, this.selectedStatus()).subscribe({
+    this.subs.add(this.ordersService.updateOrderStatus(order.id, this.selectedStatus()).subscribe({
       next: () => {
         this.alertService.showSuccess('Order status updated successfully.');
         this.updating.set(false);
@@ -164,7 +170,7 @@ export class Orders {
         this.loadOrders();
       },
       
-    });
+    }));
   }
  
   // ----- Helpers -----
@@ -208,5 +214,8 @@ export class Orders {
       month: 'short',
       day: 'numeric',
     });
+  }
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 }

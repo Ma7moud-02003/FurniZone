@@ -1,8 +1,12 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductsService } from '../Services/product-service';
 import { Product } from '../Models/product.model';
+import { Subscription } from 'rxjs';
+import { Alerts } from '../../Core/Services/alerts';
+import { Category } from '../../Models/category.model';
+import { CategoriesService } from '../../Core/Services/categories-services';
 
 @Component({
   selector: 'app-admin-products',
@@ -10,11 +14,14 @@ import { Product } from '../Models/product.model';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './products.html',
 })
-export class Products implements OnInit {
+export class Products implements OnInit , OnDestroy{
   private productsService = inject(ProductsService);
   private fb = inject(FormBuilder);
-
+   private subs=new Subscription();
+   private alerts=inject(Alerts);
   products = signal<Product[]>([]);
+  categories = signal<Category[]>([]);
+  
   isLoading = signal(true);
   error = signal('');
 
@@ -32,17 +39,31 @@ export class Products implements OnInit {
     price:       [0, [Validators.required, Validators.min(0)]],
     stock:       [0, [Validators.required, Validators.min(0)]],
     categoryId:  ['', Validators.required],
-    imageUrl:    ['', Validators.required],
+    Image:    ['', Validators.required],
   });
 
   ngOnInit() {
     this.loadProducts();
   }
+  private categoryService=inject(CategoriesService);
+
+  loadCategories(): void {
+    this.subs.add(this.categoryService.getCategories().subscribe({
+      next: (data:any) => {
+      this.categories.set(data.data);
+      this.showModal.set(true);
+
+      },
+    }));
+  }
+
 
   loadProducts() {
     this.isLoading.set(true);
-    this.productsService.getProducts({ pageNumber: 1, pageSize: 100 }).subscribe({
+    this.subs.add(this.productsService.getProducts({ pageNumber: 1, pageSize: 100 }).subscribe({
       next: (res) => {
+        console.log(res);
+        
         this.products.set(res.data.data);
         this.isLoading.set(false);
       },
@@ -50,13 +71,13 @@ export class Products implements OnInit {
         this.error.set('Failed to load products');
         this.isLoading.set(false);
       }
-    });
+    }));
   }
 
   openAddModal() {
     this.isEditing.set(false);
     this.productForm.reset({ name: '', description: '', price: 0, stock: 0, categoryId: '', imageUrl: '' });
-    this.showModal.set(true);
+    this.loadCategories();
   }
 
   openEditModal(product: Product) {
@@ -68,7 +89,7 @@ export class Products implements OnInit {
       price:       product.price,
       stock:       product.stock,
       categoryId:  product.categoryId,
-      imageUrl:    product.imageUrl,
+      Image:    product.imageUrl,
     });
     this.showModal.set(true);
   }
@@ -77,6 +98,7 @@ export class Products implements OnInit {
     this.showModal.set(false);
   }
 
+  
   submitForm() {
     if (this.productForm.invalid) return;
     this.isSubmitting.set(true);
@@ -88,23 +110,27 @@ export class Products implements OnInit {
     formData.append('Price', f.price.toString());
     formData.append('Stock', f.stock.toString());
     formData.append('CategoryId', f.categoryId);
-    formData.append('Image', f.imageUrl);
+    formData.append('Image', f.Image);
+  console.log(this.productForm.value);
+  console.log(formData);
+  
+  
+    // const request$ = this.isEditing()
+    //   ? this.productsService.updateProduct(this.editingId(), formData)
+    //   : this.productsService.addProduct(formData);
 
-    const request$ = this.isEditing()
-      ? this.productsService.updateProduct(this.editingId(), formData)
-      : this.productsService.addProduct(formData);
-
-    request$.subscribe({
-      next: () => {
-        this.isSubmitting.set(false);
-        this.closeModal();
-        this.loadProducts();
-      },
-      error: (err) => {
-        console.error('Error:', err);
-        this.isSubmitting.set(false);
-      }
-    });
+    // this.subs.add(request$.subscribe({
+    //   next: () => {
+    //     this.isSubmitting.set(false);
+    //     this.alerts.showSuccess('Product added successfully');
+    //     this.closeModal();
+    //     this.loadProducts();
+    //   },
+    //   error: (err) => {
+    //     console.error('Error:', err);
+    //     this.isSubmitting.set(false);
+    //   }
+    // }));
   }
 
   confirmDelete(id: string) {
@@ -117,12 +143,17 @@ export class Products implements OnInit {
   }
 
   deleteProduct() {
-    this.productsService.deleteProduct(this.deletingId()).subscribe({
+    this.subs.add(this.productsService.deleteProduct(this.deletingId()).subscribe({
       next: () => {
         this.showDeleteConfirm.set(false);
+        this.alerts.showSuccess('Product Deleted successfully');
+
         this.loadProducts();
       },
       error: (err) => console.error('Delete error:', err)
-    });
+    }));
+  }
+  ngOnDestroy(): void {
+    this.subs.unsubscribe()
   }
 }

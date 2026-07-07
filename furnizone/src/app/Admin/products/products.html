@@ -122,16 +122,24 @@
           </div>
         </div>
 
-        <div>
-          <label class="text-sm font-medium text-[#2B1810] mb-1 block">Category ID</label>
-          <input type="text" formControlName="categoryId"
-            placeholder="e.g. 3f886654-e333-400d-9d59-4f3a448e1116"
-            class="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-[#B94A0A]" />
-        </div>
+       <div>
+  <label class="text-sm font-medium text-[#2B1810] mb-1 block">Category</label>
+  
+  <select 
+    formControlName="categoryId"
+    class="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-[#B94A0A] bg-white">
+    
+    <option value="" disabled selected>Select a category</option>
+    
+    @for (category of categories(); track category.id) {
+      <option [value]="category.id">{{ category.name }}</option>
+    }
+  </select>
+</div>
 
         <div>
           <label class="text-sm font-medium text-[#2B1810] mb-1 block">Image URL</label>
-          <input type="text" formControlName="imageUrl"
+          <input type="text" formControlName="Image"
             placeholder="https://example.com/image.jpg"
             class="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-[#B94A0A]" />
         </div>

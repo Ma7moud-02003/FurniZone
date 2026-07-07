@@ -77,7 +77,8 @@ private cart = inject(Cart);
       );
     } else {
       this.favoriteProductIds.set([...currentIds, id]);
-
+    console.log(id);
+    
       this.subs.add(
         this.wishlistService.addToWishlist(id).subscribe({
           next: () => {

@@ -30,7 +30,6 @@ loadFavorites(): void {
     next: (res) => {
       const data=res.data.items;
       console.log(res);
-      
       // التأكد أن الداتا تم تخزينها كمصفوفة دائماً لتجنب خطأ الـ iterator
       if (Array.isArray(data)) {
         
@@ -49,6 +48,8 @@ loadFavorites(): void {
 
   // حذف منتج من المفضلة
   removeItem(id: string): void {
+    console.log(id);
+    
     this.wishlistService.deleteOfWishList(id).subscribe({
       next: () => {
         // تحديث المصفوفة محلياً فوراً لحذف الكارت من الـ UI بدون ريفريش

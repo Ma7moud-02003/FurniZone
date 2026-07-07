@@ -1,6 +1,5 @@
 export interface Product {
   id: string;
-  productId?:string,
   name: string;                // بدلاً من title
   description: string;
   price: number;

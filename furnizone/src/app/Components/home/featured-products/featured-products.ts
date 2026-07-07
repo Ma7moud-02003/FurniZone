@@ -13,7 +13,6 @@ import { ProductCard } from '../../Cards/product-card/product-card';
 })
 export class FeaturedProducts implements OnInit {
   private productsService = inject(ProductsService);
-
   products = signal<Product[]>([]);
   isLoading = signal(true);
   error = signal('');
@@ -27,7 +26,6 @@ export class FeaturedProducts implements OnInit {
       next: (res) => {
         this.products.set(res.data.data);
         console.log(res.data.data);
-        
         this.isLoading.set(false);
       },
       error: () => {
