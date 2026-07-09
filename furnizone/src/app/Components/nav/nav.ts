@@ -18,9 +18,9 @@ export class Nav implements OnInit{
 
   // عمل اسم مختصر للـ Signal لسهولة الاستخدام في الـ HTML
   readonly cartCount = this.cartService.cartItemsLength;
-
+  
  isProfileMenuOpen = signal<boolean>(false);
-    isMenuOpen = signal(false);
+  isMenuOpen = signal(false);
   isScrolled = signal(false);
   searchQuery = signal('');
 
