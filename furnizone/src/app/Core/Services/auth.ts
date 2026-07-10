@@ -11,12 +11,16 @@ import { Router } from '@angular/router';
 export class Auth {
   private http=inject(HttpClient);
   public isLogged=signal<boolean>(false);
+  role=signal<string>('');
   constructor(){
     if(localStorage.getItem('token')!==null){
     this.isLogged.set(true);
     }else{
       console.log('not not');
-      
+    }
+    if(localStorage.getItem('role')!==null){
+      const role=localStorage.getItem('role')
+    this.role.set(role||'');
     }
   }
 signUp(signUpForm:SignUpInterface){
@@ -33,9 +37,14 @@ return this.http.post(`${api}/Auth/signin`,{email,password});
     return localStorage.getItem('token');
   }
 
+  getRole(){
+    return localStorage.getItem('role');
+  }
+
   private router=inject(Router);
   logOut(){
     this.isLogged.set(false);
+    this.role.set('');
     localStorage.removeItem('token');
     localStorage.removeItem('role');
 

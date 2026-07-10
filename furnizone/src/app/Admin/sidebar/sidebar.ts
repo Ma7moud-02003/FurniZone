@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { Auth } from '../../Core/Services/auth';
 interface NavItem {
   label: string;
   route: string;
@@ -13,6 +14,7 @@ interface NavItem {
   styleUrl: './sidebar.css',
 })
 export class Sidebar {
+private auth=inject(Auth);
    navItems: NavItem[] = [
  
     {
@@ -31,4 +33,8 @@ export class Sidebar {
       icon: 'M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z',
     },
   ];
+
+  logout(){
+    this.auth.logOut();
+  }
 }

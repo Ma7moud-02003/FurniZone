@@ -13,10 +13,7 @@ export class Cart {
   cartItemsLength = signal<number>(0);
 
   constructor() {
-    if (localStorage.getItem('cartItemsLength') != null) {
-      const length = JSON.parse(localStorage.getItem('cartItemsLength') || "0");
-      this.cartItemsLength.set(length);
-    }
+    
   }
 
   // دالة مساعدة لتحديث قيمة الـ Signal والـ LocalStorage معاً

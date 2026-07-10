@@ -3,6 +3,8 @@ import { Component, computed, HostListener, inject, OnInit, signal } from '@angu
 import { RouterModule } from '@angular/router';
 import { Auth } from '../../Core/Services/auth';
 import { Cart } from '../../Core/Services/cart';
+import { ProductsService } from '../../Core/Services/products-service';
+import { Product } from '../../Models/product.Model';
 
 @Component({
   selector: 'app-nav',
@@ -13,18 +15,13 @@ import { Cart } from '../../Core/Services/cart';
 export class Nav implements OnInit{
 
 
-// حقن السيرفيس الخاصة بالسلة
-  private cartService = inject(Cart);
-
-  // عمل اسم مختصر للـ Signal لسهولة الاستخدام في الـ HTML
-  readonly cartCount = this.cartService.cartItemsLength;
 
  isProfileMenuOpen = signal<boolean>(false);
-    isMenuOpen = signal(false);
+  isMenuOpen = signal(false);
   isScrolled = signal(false);
-  searchQuery = signal('');
+  
 
-  wishlistCount = signal(5);
+  
    ngOnInit(): void {
      console.log(this.isLogged());
      this.isLogged=this.auth.isLogged;
@@ -47,13 +44,39 @@ export class Nav implements OnInit{
     this.isMenuOpen.update(v => !v);
   }
  
+ private productService=inject(ProductsService)
+  searchQuery = signal<string>('');
+  searchResults = signal<Product[]>([]);
+  isSearching = signal<boolean>(false);
   onSearch(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
+    const input = event.target as HTMLInputElement;
+    const value = input.value.trim();
     this.searchQuery.set(value);
+    if (!value) {
+      this.searchResults.set([]);
+      return;
+    }
+
+    this.isSearching.set(true);
+    this.productService.searchProducts(value, 1, 10).subscribe({
+      next: (res: any) => {
+        console.log(res);
+        const data=res.data.data;
+        this.searchResults.set(data); 
+        this.isSearching.set(false);
+      },
+      error: () => {
+        this.isSearching.set(false);
+      }
+    });
+  }
+
+  clearSearch() {
+    this.searchQuery.set('');
+    this.searchResults.set([]);
   }
 
   logOut(){
-  
     this.auth.logOut();
   }
 }

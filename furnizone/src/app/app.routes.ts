@@ -20,7 +20,7 @@ export const routes: Routes = [
         loadComponent: () => import('./Components/Auth/register/register').then(m => m.Register)
     },
     {
-        path: 'home',
+        path: 'home', canActivate: [authGuard],
         loadComponent: () => import('./Components/home/home').then(m => m.Home)
     },
     {
