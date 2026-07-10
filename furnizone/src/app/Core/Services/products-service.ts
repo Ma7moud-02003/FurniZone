@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { api } from '../../../environments/environment';
 import { ApiResponse } from '../../Models/product.Model';
+import { Observable } from 'rxjs';
 
 export interface ProductFilters {
   categoryId?: string;
@@ -38,4 +39,12 @@ export class ProductsService {
   getProductById(id: string) {
     return this.http.get<any>(`${api}/Products/${id}`);
   }
+searchProducts(query: string, pageNumber: number = 1, pageSize: number = 10): Observable<any> {
+    const params = new HttpParams()
+      .set('q', query)
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+    return this.http.get<any>(`${api}/Products/search`, { params });
+  }
+
 }

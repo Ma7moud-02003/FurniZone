@@ -110,27 +110,27 @@ export class Products implements OnInit , OnDestroy{
     formData.append('Price', f.price.toString());
     formData.append('Stock', f.stock.toString());
     formData.append('CategoryId', f.categoryId);
-    formData.append('Image', f.Image);
-  console.log(this.productForm.value);
-  console.log(formData);
+    formData.append('ImageUrl', f.Image);
+    console.log(this.productForm.value);
+    console.log(formData);
   
   
-    // const request$ = this.isEditing()
-    //   ? this.productsService.updateProduct(this.editingId(), formData)
-    //   : this.productsService.addProduct(formData);
+    const request$ = this.isEditing()
+      ? this.productsService.updateProduct(this.editingId(), formData)
+      : this.productsService.addProduct(formData);
 
-    // this.subs.add(request$.subscribe({
-    //   next: () => {
-    //     this.isSubmitting.set(false);
-    //     this.alerts.showSuccess('Product added successfully');
-    //     this.closeModal();
-    //     this.loadProducts();
-    //   },
-    //   error: (err) => {
-    //     console.error('Error:', err);
-    //     this.isSubmitting.set(false);
-    //   }
-    // }));
+    this.subs.add(request$.subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.alerts.showSuccess('Product added successfully');
+        this.closeModal();
+        this.loadProducts();
+      },
+      error: (err) => {
+        console.error('Error:', err);
+        this.isSubmitting.set(false);
+      }
+    }));
   }
 
   confirmDelete(id: string) {

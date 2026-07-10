@@ -75,12 +75,12 @@ import { Alerts } from '../../../Core/Services/alerts';
         this.auth.isLogged.set(true);
         if(res.data.role==0){
           localStorage.setItem('role','user');
+          this.auth.role.set('user');
          this.rout.navigate(['/home'])
         }else if(res.data.role==1){
           localStorage.setItem('role','admin');
-         this.rout.navigate(['admin'])
-
-
+          this.auth.role.set('admin');
+          this.rout.navigate(['admin'])
         }
         },error:()=>{
           
