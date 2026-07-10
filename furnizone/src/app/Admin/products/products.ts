@@ -92,6 +92,8 @@ export class Products implements OnInit , OnDestroy{
       Image:    product.imageUrl,
     });
     this.showModal.set(true);
+    this.loadCategories();
+
   }
 
   closeModal() {
